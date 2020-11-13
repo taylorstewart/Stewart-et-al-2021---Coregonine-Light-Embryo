@@ -34,8 +34,8 @@ hatch <- read_excel("data/Coregonine-Light-Experiment-Hatch.xlsx", sheet = "2020
          hatch = as.numeric(hatch)) %>% 
   left_join(ADD) %>% 
   dplyr::select(population, light, male, female, block, eye, hatch, dpf, ADD) %>% 
-  mutate(population = factor(population, levels = c("superior", "ontario"), ordered = TRUE),
-         light = factor(light, ordered = TRUE, levels = c("high", "medium", "low")),
+  mutate(population = factor(population, levels = c("Superior", "Ontario"), ordered = TRUE),
+         light = factor(light, ordered = TRUE, levels = c("High", "Medium", "Low")),
          female = factor(female, levels = seq(1, 12, 1),
                          labels = c("F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12")),
          male = factor(male, levels = seq(1, 16, 1),
@@ -47,16 +47,13 @@ hatch <- read_excel("data/Coregonine-Light-Experiment-Hatch.xlsx", sheet = "2020
 #### FILTER TO EACH TRAITS' DATASET --------------------------------------------------------------
 
 ## filter to only eyed embryos
-hatch.survival <- hatch %>% filter(eye != 0) %>% 
-  mutate(light = factor(light, ordered = TRUE, levels = c("high", "medium", "low"))) %>% droplevels()
+hatch.survival <- hatch %>% filter(eye != 0) %>% droplevels()
 
 ## filter to only hatched embryos
-hatch.dpf <- hatch %>% filter(!is.na(dpf), hatch == 1) %>% 
-  mutate(light = factor(light, ordered = TRUE, levels = c("high", "medium", "low"))) %>% droplevels()
+hatch.dpf <- hatch %>% filter(!is.na(dpf), hatch == 1) %>% droplevels()
 
 ## filter to only hatched embryos
-hatch.ADD <- hatch %>% filter(!is.na(ADD), hatch == 1)%>% 
-  mutate(light = factor(light, ordered = TRUE, levels = c("high", "medium", "low"))) %>% droplevels()
+hatch.ADD <- hatch %>% filter(!is.na(ADD), hatch == 1) %>% droplevels()
 
 
 #### STATISTICAL ANALYSIS - SURVIVAL -----------------------------------------
