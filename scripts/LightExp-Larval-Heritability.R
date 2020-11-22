@@ -225,11 +225,9 @@ heritability.tl.summary <- heritability.tl.boot %>%
          h2.obs.bias = ifelse(h2.obs.bias < 0, 0, h2.obs.bias)) %>% 
   ## Round numeric columns
   mutate_if(is.numeric, round, 2) %>% 
-  mutate(population = gsub("_", "-", substr(group, 1, nchar(group)-5)),
-         temperature = substr(group, nchar(group)-3, nchar(group)),
-         temperature = gsub("_", ".", temperature),
-         temperature = as.numeric(gsub("C", "", temperature))) %>% 
-  select(group, population, temperature, everything())
+  mutate(population = gsub("_", "", substr(group, 1, 8)),
+         treatment = gsub("_", "", substr(group, 9, nchar(group)))) %>% 
+  select(group, population, treatment, everything())
 
 ## Yolk-sac Volume
 heritability.yolk.summary <- heritability.yolk.boot %>% 
@@ -250,39 +248,27 @@ heritability.yolk.summary <- heritability.yolk.boot %>%
          h2.obs.bias = ifelse(h2.obs.bias < 0, 0, h2.obs.bias)) %>% 
   ## Round numeric columns
   mutate_if(is.numeric, round, 2) %>% 
-  mutate(population = gsub("_", "-", substr(group, 1, nchar(group)-5)),
-         temperature = substr(group, nchar(group)-3, nchar(group)),
-         temperature = gsub("_", ".", temperature),
-         temperature = as.numeric(gsub("C", "", temperature))) %>% 
+  mutate(population = gsub("_", "", substr(group, 1, 8)),
+         treatment = gsub("_", "", substr(group, 9, nchar(group)))) %>% 
   select(group, population, temperature, everything())
-
-
-#### CREATE DATA FRAME WITH TEMPERATURE TREATMENTS -----------------------------------------------
-
-temp <- data.frame(group = c("LK_Whitefish_8_0C", "LK_Whitefish_6_9C", "LK_Whitefish_4_0C", "LK_Whitefish_2_2C",
-                             "LK_Vendace_8_0C", "LK_Vendace_6_9C", "LK_Vendace_4_0C", "LK_Vendace_2_2C",
-                             "LS_Cisco_8_9C", "LS_Cisco_6_9C", "LS_Cisco_4_4C", "LS_Cisco_2_0C",
-                             "LO_Cisco_8_9C", "LO_Cisco_6_9C", "LO_Cisco_4_4C", "LO_Cisco_2_0C"),
-                   temp.treatment = rep(c("9.0°C", "7.0°C", "4.5°C", "2.0°C"), 4))
 
 
 # COMBINE ALL TRAITS --------------------------------------------------------------------------
 
-heritability.all <- bind_rows(heritability.tl.summary, heritability.yolk.summary) %>%
-  left_join(temp) %>% 
+heritability.all <- heritability.tl.summary %>% #bind_rows(heritability.tl.summary, heritability.yolk.summary) %>%
   mutate(trait = factor(trait, ordered = TRUE, levels = c("tl", "yolk"),
                         labels = c("LAH", "YSV")),
-         temp.treatment = factor(temp.treatment, ordered = TRUE, levels = c("2.0°C", "4.5°C", "7.0°C", "9.0°C")),
-         population = factor(population, ordered = TRUE, levels = c("LK-Vendace", "LK-Whitefish", "LS-Cisco", "LO-Cisco")),
+         population = factor(population, ordered = TRUE, levels = c("Superior", "Ontario")),
+         treatment = factor(treatment, ordered = TRUE, levels = c("High", "Medium", "Low")),
          h2.obs.bias = ifelse(h2.obs.bias > 1, 1, h2.obs.bias),
-         maternal.obs.bias = ifelse(maternal.obs.bias < 0, 0, maternal.obs.bias)) %>% 
-  filter(population != "LK-Whitefish")
+         maternal.obs.bias = ifelse(maternal.obs.bias < 0, 0, maternal.obs.bias))
 
 
 #### VISUALIZATION - HERITABILITY --------------------------------------------
 
 ## Heritability
-plot.h2.lah <- ggplot(filter(heritability.all, trait == "LAH"), aes(x = temperature, y = (h2.obs.bias * 100), group = population, color = population, shape = population, linetype = population)) + 
+#plot.h2.lah <- 
+ggplot(filter(heritability.all, trait == "LAH"), aes(x = treatment, y = (h2.obs.bias * 100), group = population, color = population, shape = population, linetype = population)) + 
   geom_line(size = 1.0, position = position_dodge(0.13)) +
   geom_point(size = 5, position = position_dodge(0.13)) +
   annotate("text", label = "A", x = 2.0, y = 65, size = 7) +
@@ -290,20 +276,14 @@ plot.h2.lah <- ggplot(filter(heritability.all, trait == "LAH"), aes(x = temperat
                     ymax = ifelse((h2.obs.bias + h2.se) * 100 > 100, 100, (h2.obs.bias + h2.se) * 100)), 
                 position = position_dodge(0.13),
                 size = 1.0, width = 0.25, linetype = "solid", show.legend = FALSE) +
-  #scale_color_manual("combine", values = c("#000000", "#717171" ,"#9f9e9f", "#c6c5c6"),
-  #labels = c("LK-Vendace   ", "LK-Whitefish   ", "LS-Cisco   ", "LO-Cisco")) +
-  scale_color_manual("combine", values = c("#000000","#9f9e9f", "#c6c5c6"),
-                     labels = c("LK-Vendace   ", "LS-Cisco   ", "LO-Cisco")) +
-  #scale_shape_manual("combine", values = c(2, 5, 1, 0), 
-  #labels = c("LK-Vendace   ", "LK-Whitefish   ", "LS-Cisco   ", "LO-Cisco")) +
-  scale_shape_manual("combine", values = c(2, 1, 0), 
-                     labels = c("LK-Vendace   ", "LS-Cisco   ", "LO-Cisco")) +
-  #scale_linetype_manual("combine", values = c("solid", "dashed", "dotted", "solid"), 
-  #labels = c("LK-Vendace   ", "LK-Whitefish   ", "LS-Cisco   ", "LO-Cisco")) +
-  scale_linetype_manual("combine", values = c("solid", "dotted", "solid"), 
-                        labels = c("LK-Vendace   ", "LS-Cisco   ", "LO-Cisco")) +
-  scale_y_continuous(limits = c(-2, 70), breaks = seq(0, 100, 10), expand = c(0, 0)) +
-  scale_x_continuous(limits = c(1.75, 9.15), breaks = c(2, 4, 4.4, 6.9, 8, 8.9), expand = c(0, 0)) +
+  scale_color_manual("combine", values = c("#000000", "#717171"),
+                     labels = c("Superior   ", "Ontario   ")) +
+  scale_shape_manual("combine", values = c(2, 5), 
+                     labels = c("Superior   ", "Ontario   ")) +
+  scale_linetype_manual("combine", values = c("solid", "dashed"), 
+                        labels = c("Superior   ", "Ontario   ")) +
+  scale_y_continuous(limits = c(-2, 90), breaks = seq(0, 100, 10), expand = c(0, 0)) +
+  #scale_x_continuous(limits = c(1.75, 9.15), breaks = c(2, 4, 4.4, 6.9, 8, 8.9), expand = c(0, 0)) +
   labs(x = "Incubation Temperature (°C)", y = "Narrow-sense Heritability (%)") +
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(15, 0, 0, 0)),
