@@ -139,9 +139,9 @@ ggplot(larval.yolk.summary, aes(x = light, y = mean.yolk, group = population, co
   geom_point(size = 3.25, position = position_dodge(0.13)) +
   geom_errorbar(aes(ymin = mean.yolk - se.yolk, ymax = mean.yolk + se.yolk), 
                 position = position_dodge(0.13),
-                size = 0.8, width = 0.2, linetype = "solid", show.legend = FALSE) +
+                size = 0.8, width = 0.1, linetype = "solid", show.legend = FALSE) +
   scale_x_discrete(labels = c("High", "Medium", "Low"), expand = c(0, 0.1)) +
-  scale_y_continuous(limits = c(0.0, 1.45), breaks = seq(0, 1.4, 0.2), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0.2, 0.6), breaks = seq(0.2, 0.6, 0.2), expand = c(0, 0)) +
   scale_color_grey("combine", start = 0.0, end = 0.6,
                    labels = c("Superior   ", "Ontario")) +
   scale_shape_manual("combine", values = c(1, 2), 
