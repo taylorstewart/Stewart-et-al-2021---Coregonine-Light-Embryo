@@ -107,20 +107,21 @@ larval.yolk.summary <- larval.yolk %>%
 #### VISUALIZATIONS ----------------------------------------------------------
 
 ## Length-at-Hatch
-#plot.tl <- 
-ggplot(larval.tl.summary, aes(x = light, y = mean.tl, group = population, color = population, shape = population)) + 
-  geom_line(size = 1.0, position = position_dodge(0.13)) +
-  geom_point(size = 3.25, position = position_dodge(0.13)) +
+plot.tl <- ggplot(larval.tl.summary, aes(x = light, y = mean.tl, group = population, color = population, shape = population, linetype = population)) + 
+  geom_line(size = 1.0, position = position_dodge(0)) +
+  geom_point(size = 3.25, position = position_dodge(0)) +
   geom_errorbar(aes(ymin = mean.tl - se.tl, ymax = mean.tl + se.tl), 
-                position = position_dodge(0.1),
-                size = 0.8, width = 0.2, linetype = "solid", show.legend = FALSE) +
+                position = position_dodge(0),
+                size = 0.8, width = 0.1, linetype = "solid", show.legend = FALSE) +
   scale_x_discrete(labels = c("High", "Medium", "Low"), expand = c(0, 0.1)) +
-  scale_y_continuous(limits = c(9, 12), breaks = seq(9, 12, 0.5), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(9.4, 11), breaks = seq(9.5, 11, 0.5), expand = c(0, 0)) +
   scale_color_grey("combine", start = 0.0, end = 0.6,
                    labels = c("Superior   ", "Ontario")) +
   scale_shape_manual("combine", values = c(1, 2), 
                      labels = c("Superior   ", "Ontario")) +
-  labs(y = "Mean LAH (mm)", color = "Populations") +
+  scale_linetype_manual("combine", values = c("solid", "dashed"), 
+                        labels = c("Superior   ", "Ontario")) +
+  labs(y = "Mean LAH (mm)", x = "Light Treatment") +
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 18, margin = margin(10, 0, 0, 0)),
         axis.title.y = element_text(color = "Black", size = 18, margin = margin(0, 10, 0, 0)),
@@ -133,20 +134,21 @@ ggplot(larval.tl.summary, aes(x = light, y = mean.tl, group = population, color 
         plot.margin = unit(c(5, 5, 5, 5), 'mm'))
 
 ## Yolk-sac Volume
-#plot.yolk <- 
-ggplot(larval.yolk.summary, aes(x = light, y = mean.yolk, group = population, color = population, shape = population)) + 
-  geom_line(size = 1.0, position = position_dodge(0.13)) +
-  geom_point(size = 3.25, position = position_dodge(0.13)) +
+plot.yolk <- ggplot(larval.yolk.summary, aes(x = light, y = mean.yolk, group = population, color = population, shape = population, linetype = population)) + 
+  geom_line(size = 1.0, position = position_dodge(0)) +
+  geom_point(size = 3.25, position = position_dodge(0)) +
   geom_errorbar(aes(ymin = mean.yolk - se.yolk, ymax = mean.yolk + se.yolk), 
-                position = position_dodge(0.13),
+                position = position_dodge(0),
                 size = 0.8, width = 0.1, linetype = "solid", show.legend = FALSE) +
   scale_x_discrete(labels = c("High", "Medium", "Low"), expand = c(0, 0.1)) +
-  scale_y_continuous(limits = c(0.2, 0.7), breaks = seq(0.2, 0.7, 0.1), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0.3, 0.7), breaks = seq(0.3, 0.7, 0.1), expand = c(0, 0)) +
   scale_color_grey("combine", start = 0.0, end = 0.6,
                    labels = c("Superior   ", "Ontario")) +
   scale_shape_manual("combine", values = c(1, 2), 
                      labels = c("Superior   ", "Ontario")) +
-  labs(y = expression("Mean YSV (mm"^3*")")) +
+  scale_linetype_manual("combine", values = c("solid", "dashed"), 
+                        labels = c("Superior   ", "Ontario")) +
+  labs(y = expression("Mean YSV (mm"^3*")"), x = "Light Treatment") +
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 18, margin = margin(10, 0, 0, 0)),
         axis.title.y = element_text(color = "Black", size = 18, margin = margin(0, 10, 0, 0)),
