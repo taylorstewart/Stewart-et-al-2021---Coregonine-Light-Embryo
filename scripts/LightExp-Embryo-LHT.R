@@ -139,18 +139,20 @@ hatch.ADD.summary <- hatch %>% filter(!is.na(ADD), hatch == 1) %>%
 # VISUALIZATIONS - MEANS ----------------------------------------------------------------------
 
 ## Embryo Survival
-plot.survival <- ggplot(hatch.survival.summary, aes(x = light, y = (mean.hatch * 100), group = population, color = population, shape = population)) + 
+plot.survival <- ggplot(hatch.survival.summary, aes(x = light, y = (mean.hatch * 100), group = population, color = population, shape = population, linetype = population)) + 
   geom_line(size = 1.0, position = position_dodge(0.13)) +
   geom_point(size = 5, position = position_dodge(0.13)) +
   geom_errorbar(aes(ymin = (mean.hatch - se.hatch) * 100, ymax = (mean.hatch + se.hatch) * 100), 
                 position = position_dodge(0.13),
                 size = 0.8, width = 0.1, linetype = "solid", show.legend = FALSE) +
   scale_x_discrete(labels = c("High", "Medium", "Low"), expand = c(0, 0.1)) +
-  scale_y_continuous(limits = c(73, 102), breaks = seq(75, 100, 5), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(80, 101), breaks = seq(80, 100, 5), expand = c(0, 0)) +
   scale_color_grey("combine", start = 0.0, end = 0.6,
                    labels = c("Superior   ", "Ontario")) +
   scale_shape_manual("combine", values = c(1, 2), 
                      labels = c("Superior   ", "Ontario")) +
+  scale_linetype_manual("combine", values = c("solid", "dashed"), 
+                        labels = c("Superior   ", "Ontario")) +
   labs(y = "Mean ES (%)") +
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(15, 0, 0, 0)),
@@ -164,7 +166,7 @@ plot.survival <- ggplot(hatch.survival.summary, aes(x = light, y = (mean.hatch *
         plot.margin = unit(c(5, 5, 5, 5), 'mm'))
 
 ## Days Post Fertilization
-plot.dpf <- ggplot(hatch.dpf.summary, aes(x = light, y = mean.dpf, group = population, color = population, shape = population)) + 
+plot.dpf <- ggplot(hatch.dpf.summary, aes(x = light, y = mean.dpf, group = population, color = population, shape = population, linetype = population)) + 
   geom_line(size = 1.0, position = position_dodge(0.13)) +
   geom_point(size = 5, position = position_dodge(0.13)) +
   geom_errorbar(aes(ymin = mean.dpf - se.dpf, ymax = mean.dpf + se.dpf), 
@@ -176,6 +178,8 @@ plot.dpf <- ggplot(hatch.dpf.summary, aes(x = light, y = mean.dpf, group = popul
                    labels = c("Superior   ", "Ontario")) +
   scale_shape_manual("combine", values = c(1, 2), 
                      labels = c("Superior   ", "Ontario")) +
+  scale_linetype_manual("combine", values = c("solid", "dashed"), 
+                        labels = c("Superior   ", "Ontario")) +
   labs(y = "Mean DPF") +
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(15, 0, 0, 0)),
@@ -189,7 +193,7 @@ plot.dpf <- ggplot(hatch.dpf.summary, aes(x = light, y = mean.dpf, group = popul
         plot.margin = unit(c(5, 5, 5, 5), 'mm'))
 
 ## Accumulated Degree-Days
-plot.ADD <- ggplot(hatch.ADD.summary, aes(x = light, y = mean.ADD, group = population, color = population, shape = population)) + 
+plot.ADD <- ggplot(hatch.ADD.summary, aes(x = light, y = mean.ADD, group = population, color = population, shape = population, linetype = population)) + 
   geom_line(size = 1.0, position = position_dodge(0.13)) +
   geom_point(size = 5, position = position_dodge(0.13)) +
   geom_errorbar(aes(ymin = mean.ADD - se.ADD, ymax = mean.ADD + se.ADD), 
@@ -201,6 +205,8 @@ plot.ADD <- ggplot(hatch.ADD.summary, aes(x = light, y = mean.ADD, group = popul
                    labels = c("Superior   ", "Ontario")) +
   scale_shape_manual("combine", values = c(1, 2), 
                      labels = c("Superior   ", "Ontario")) +
+  scale_linetype_manual("combine", values = c("solid", "dashed"), 
+                        labels = c("Superior   ", "Ontario")) +
   labs(y = "Mean ADD (°C)") +
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(15, 0, 0, 0)),
@@ -222,7 +228,7 @@ plot.all <- grid.arrange(arrangeGrob(textGrob(""),
                                      plot.dpf + theme(legend.position = "none", axis.title.x = element_blank()),
                                      plot.ADD + theme(legend.position = "none", axis.title.x = element_blank()),
                                      nrow = 3,
-                                     bottom = textGrob("Mean Incubation Temperature (°C)", x = 0.545, gp = gpar(cex = 1.75, fontfamily = "Arial"))),
+                                     bottom = textGrob("Light Treatment", x = 0.545, gp = gpar(cex = 1.75, fontfamily = "Arial"))),
                          heights = c(0.025, 1)
 )
 

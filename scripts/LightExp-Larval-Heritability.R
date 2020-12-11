@@ -112,7 +112,6 @@ end - start
 ## Run loop to calculate genetic variances for each temperature and population
 start <- Sys.time()
 if(file.exists("data/Heritability_Bootstrap/Heritability_YSV_var_boot.csv") == FALSE) {
-
   heritability.yolk.boot <- do.call(rbind, mclapply(unique(larval.yolk$group), mc.cores = detectCores(), function(grp) {
     ## Filter to only a single temperature treatment
     data.group <- larval.yolk %>% filter(group == grp) %>% 
@@ -140,8 +139,6 @@ if(file.exists("data/Heritability_Bootstrap/Heritability_YSV_var_boot.csv") == F
     ## Save bootstrapped fish data
     write.csv(bootstrap.data, paste0("data/Heritability_Bootstrap/YSV/Heritability_YSV_Boot_Fish_", grp ,".csv"), row.names = FALSE)
     
-    bootstrap.data <- fread(grp)
-    
     ## Calculate variance components from bootstrapped sample
     bootstrap.data.glmer2 <- resampLmer2(resamp = bootstrap.data, dam = "dam", sire = "sire", response = "yolk",
                                          block = "block", start = 1, end = 10000)
@@ -152,9 +149,9 @@ if(file.exists("data/Heritability_Bootstrap/Heritability_YSV_var_boot.csv") == F
   }))
   
   ## Save variances for future use
-  write.csv(heritability.yolk.boot2, "data/Heritability_Bootstrap/Heritability_YSV_Var_Boot.csv", row.names = FALSE)
+  write.csv(heritability.yolk.boot, "data/Heritability_Bootstrap/Heritability_YSV_var_boot.csv", row.names = FALSE)
 } else {
-  heritability.yolk.boot <- fread("data/Heritability_Bootstrap/Heritability_YSV_Var_Boot.csv")
+  heritability.yolk.boot <- fread("data/Heritability_Bootstrap/Heritability_YSV_var_boot.csv")
 }
 
 end <- Sys.time()
@@ -250,12 +247,12 @@ heritability.yolk.summary <- heritability.yolk.boot %>%
   mutate_if(is.numeric, round, 2) %>% 
   mutate(population = gsub("_", "", substr(group, 1, 8)),
          treatment = gsub("_", "", substr(group, 9, nchar(group)))) %>% 
-  select(group, population, temperature, everything())
+  select(group, population, treatment, everything())
 
 
 # COMBINE ALL TRAITS --------------------------------------------------------------------------
 
-heritability.all <- heritability.tl.summary %>% #bind_rows(heritability.tl.summary, heritability.yolk.summary) %>%
+heritability.all <- heritability.tl.summary %>% bind_rows(heritability.tl.summary, heritability.yolk.summary) %>%
   mutate(trait = factor(trait, ordered = TRUE, levels = c("tl", "yolk"),
                         labels = c("LAH", "YSV")),
          population = factor(population, ordered = TRUE, levels = c("Superior", "Ontario")),
@@ -267,11 +264,10 @@ heritability.all <- heritability.tl.summary %>% #bind_rows(heritability.tl.summa
 #### VISUALIZATION - HERITABILITY --------------------------------------------
 
 ## Heritability
-#plot.h2.lah <- 
-ggplot(filter(heritability.all, trait == "LAH"), aes(x = treatment, y = (h2.obs.bias * 100), group = population, color = population, shape = population, linetype = population)) + 
+plot.h2.lah <- ggplot(filter(heritability.all, trait == "LAH"), aes(x = treatment, y = (h2.obs.bias * 100), group = population, color = population, shape = population, linetype = population)) + 
   geom_line(size = 1.0, position = position_dodge(0.13)) +
   geom_point(size = 5, position = position_dodge(0.13)) +
-  annotate("text", label = "A", x = 2.0, y = 65, size = 7) +
+  annotate("text", label = "A", x = 3.0, y = 75, size = 7) +
   geom_errorbar(aes(ymin = ifelse((h2.obs.bias - h2.se) * 100 < 0, 0, (h2.obs.bias - h2.se) * 100), 
                     ymax = ifelse((h2.obs.bias + h2.se) * 100 > 100, 100, (h2.obs.bias + h2.se) * 100)), 
                 position = position_dodge(0.13),
@@ -282,7 +278,8 @@ ggplot(filter(heritability.all, trait == "LAH"), aes(x = treatment, y = (h2.obs.
                      labels = c("Superior   ", "Ontario   ")) +
   scale_linetype_manual("combine", values = c("solid", "dashed"), 
                         labels = c("Superior   ", "Ontario   ")) +
-  scale_y_continuous(limits = c(-2, 90), breaks = seq(0, 100, 10), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(-2, 80), breaks = seq(0, 100, 10), expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0.25)) +
   #scale_x_continuous(limits = c(1.75, 9.15), breaks = c(2, 4, 4.4, 6.9, 8, 8.9), expand = c(0, 0)) +
   labs(x = "Incubation Temperature (°C)", y = "Narrow-sense Heritability (%)") +
   theme_bw() +
@@ -297,28 +294,22 @@ ggplot(filter(heritability.all, trait == "LAH"), aes(x = treatment, y = (h2.obs.
         plot.margin = unit(c(5, 5, 5, 5), 'mm'))
 
 
-plot.h2.ysv <- ggplot(filter(heritability.all, trait == "YSV"), aes(x = temperature, y = (h2.obs.bias * 100), group = population, color = population, shape = population, linetype = population)) + 
+plot.h2.ysv <- ggplot(filter(heritability.all, trait == "YSV"), aes(x = treatment, y = (h2.obs.bias * 100), group = population, color = population, shape = population, linetype = population)) + 
   geom_line(size = 1.0, position = position_dodge(0.13)) +
   geom_point(size = 5, position = position_dodge(0.13)) +
-  annotate("text", label = "B", x = 2.0, y = 46, size = 7) +
+  annotate("text", label = "B", x = 3.0, y = 45, size = 7) +
   geom_errorbar(aes(ymin = ifelse((h2.obs.bias - h2.se) * 100 < 0, 0, (h2.obs.bias - h2.se) * 100), 
                     ymax = ifelse((h2.obs.bias + h2.se) * 100 > 100, 100, (h2.obs.bias + h2.se) * 100)), 
                 position = position_dodge(0.13),
                 size = 1.0, width = 0.25, linetype = "solid", show.legend = FALSE) +
-  #scale_color_manual("combine", values = c("#000000", "#717171" ,"#9f9e9f", "#c6c5c6"),
-  #labels = c("LK-Vendace   ", "LK-Whitefish   ", "LS-Cisco   ", "LO-Cisco")) +
-  scale_color_manual("combine", values = c("#000000","#9f9e9f", "#c6c5c6"),
-                     labels = c("LK-Vendace   ", "LS-Cisco   ", "LO-Cisco")) +
-  #scale_shape_manual("combine", values = c(2, 5, 1, 0), 
-  #labels = c("LK-Vendace   ", "LK-Whitefish   ", "LS-Cisco   ", "LO-Cisco")) +
-  scale_shape_manual("combine", values = c(2, 1, 0), 
-                     labels = c("LK-Vendace   ", "LS-Cisco   ", "LO-Cisco")) +
-  #scale_linetype_manual("combine", values = c("solid", "dashed", "dotted", "solid"), 
-  #labels = c("LK-Vendace   ", "LK-Whitefish   ", "LS-Cisco   ", "LO-Cisco")) +
-  scale_linetype_manual("combine", values = c("solid", "dotted", "solid"), 
-                        labels = c("LK-Vendace   ", "LS-Cisco   ", "LO-Cisco")) +
-  scale_y_continuous(limits = c(-2, 50), breaks = seq(0, 100, 10), expand = c(0, 0)) +
-  scale_x_continuous(limits = c(1.75, 9.15), breaks = c(2, 4, 4.4, 6.9, 8, 8.9), expand = c(0, 0)) +
+  scale_color_manual("combine", values = c("#000000", "#717171"),
+                     labels = c("Superior   ", "Ontario   ")) +
+  scale_shape_manual("combine", values = c(2, 5), 
+                     labels = c("Superior   ", "Ontario   ")) +
+  scale_linetype_manual("combine", values = c("solid", "dashed"), 
+                        labels = c("Superior   ", "Ontario   ")) +
+  scale_y_continuous(limits = c(-2, 50), breaks = seq(0, 60, 10), expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0.25)) +
   labs(x = "Incubation Temperature (°C)", y = "Narrow-sense Heritability (%)") +
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(15, 0, 0, 0)),
@@ -344,31 +335,25 @@ plot.h2.all <- grid.arrange(arrangeGrob(textGrob(""),
                          heights = c(0.025, 1)
 )
 
-ggsave("figures/2020-Larval-Heritability-SE-Line.png", plot = plot.h2.all, width = 11, height = 10, dpi = 300)
+ggsave("figures/2020-Light-Larval-Heritability-SE.png", plot = plot.h2.all, width = 11, height = 10, dpi = 300)
 
- ## Heritability
-plot.m2.lah <- ggplot(filter(heritability.all, trait == "LAH"), aes(x = temperature, y = (maternal.obs.bias * 100), group = population, color = population, shape = population, linetype = population)) + 
+## Heritability
+plot.m2.lah <- ggplot(filter(heritability.all, trait == "LAH"), aes(x = treatment, y = (maternal.obs.bias * 100), group = population, color = population, shape = population, linetype = population)) + 
   geom_line(size = 1.0, position = position_dodge(0.13)) +
   geom_point(size = 5, position = position_dodge(0.13)) +
-  annotate("text", label = "A", x = 2.0, y = 95, size = 7) +
+  annotate("text", label = "A", x = 3.0, y = 55, size = 7) +
   geom_errorbar(aes(ymin = ifelse((maternal.obs.bias - maternal.se) * 100 < 0, 0, (maternal.obs.bias - maternal.se) * 100), 
                     ymax = ifelse((maternal.obs.bias + maternal.se) * 100 > 100, 100, (maternal.obs.bias + maternal.se) * 100)), 
                 position = position_dodge(0.13),
                 size = 1.0, width = 0.25, linetype = "solid", show.legend = FALSE) +
-  #scale_color_manual("combine", values = c("#000000", "#717171" ,"#9f9e9f", "#c6c5c6"),
-  #labels = c("LK-Vendace   ", "LK-Whitefish   ", "LS-Cisco   ", "LO-Cisco")) +
-  scale_color_manual("combine", values = c("#000000","#9f9e9f", "#c6c5c6"),
-                     labels = c("LK-Vendace   ", "LS-Cisco   ", "LO-Cisco")) +
-  #scale_shape_manual("combine", values = c(2, 5, 1, 0), 
-  #labels = c("LK-Vendace   ", "LK-Whitefish   ", "LS-Cisco   ", "LO-Cisco")) +
-  scale_shape_manual("combine", values = c(2, 1, 0), 
-                     labels = c("LK-Vendace   ", "LS-Cisco   ", "LO-Cisco")) +
-  #scale_linetype_manual("combine", values = c("solid", "dashed", "dotted", "solid"), 
-  #labels = c("LK-Vendace   ", "LK-Whitefish   ", "LS-Cisco   ", "LO-Cisco")) +
-  scale_linetype_manual("combine", values = c("solid", "dotted", "solid"), 
-                        labels = c("LK-Vendace   ", "LS-Cisco   ", "LO-Cisco")) +
-  scale_y_continuous(limits = c(-2, 102), breaks = seq(0, 100, 20), expand = c(0, 0)) +
-  scale_x_continuous(limits = c(1.75, 9.15), breaks = c(2, 4, 4.4, 6.9, 8, 8.9), expand = c(0, 0)) +
+  scale_color_manual("combine", values = c("#000000", "#717171"),
+                     labels = c("Superior   ", "Ontario   ")) +
+  scale_shape_manual("combine", values = c(2, 5), 
+                     labels = c("Superior   ", "Ontario   ")) +
+  scale_linetype_manual("combine", values = c("solid", "dashed"), 
+                        labels = c("Superior   ", "Ontario   ")) +
+  scale_y_continuous(limits = c(-2, 60), breaks = seq(0, 100, 10), expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0.25)) +
   labs(x = "Incubation Temperature (°C)", y = "Maternal Effect (%)") +
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(15, 0, 0, 0)),
@@ -382,28 +367,22 @@ plot.m2.lah <- ggplot(filter(heritability.all, trait == "LAH"), aes(x = temperat
         plot.margin = unit(c(5, 5, 5, 5), 'mm'))
 
 
-plot.m2.ysv <- ggplot(filter(heritability.all, trait == "YSV"), aes(x = temperature, y = (maternal.obs.bias * 100), group = population, color = population, shape = population, linetype = population)) + 
+plot.m2.ysv <- ggplot(filter(heritability.all, trait == "YSV"), aes(x = treatment, y = (maternal.obs.bias * 100), group = population, color = population, shape = population, linetype = population)) + 
   geom_line(size = 1.0, position = position_dodge(0.13)) +
   geom_point(size = 5, position = position_dodge(0.13)) +
-  annotate("text", label = "B", x = 2.0, y = 65, size = 7) +
+  annotate("text", label = "B", x = 3.0, y = 55, size = 7) +
   geom_errorbar(aes(ymin = ifelse((maternal.obs.bias - maternal.se) * 100 < 0, 0, (maternal.obs.bias - maternal.se) * 100), 
                     ymax = ifelse((maternal.obs.bias + maternal.se) * 100 > 100, 100, (maternal.obs.bias + maternal.se) * 100)), 
                 position = position_dodge(0.13),
                 size = 1.0, width = 0.25, linetype = "solid", show.legend = FALSE) +
-  #scale_color_manual("combine", values = c("#000000", "#717171" ,"#9f9e9f", "#c6c5c6"),
-  #labels = c("LK-Vendace   ", "LK-Whitefish   ", "LS-Cisco   ", "LO-Cisco")) +
-  scale_color_manual("combine", values = c("#000000","#9f9e9f", "#c6c5c6"),
-                     labels = c("LK-Vendace   ", "LS-Cisco   ", "LO-Cisco")) +
-  #scale_shape_manual("combine", values = c(2, 5, 1, 0), 
-  #labels = c("LK-Vendace   ", "LK-Whitefish   ", "LS-Cisco   ", "LO-Cisco")) +
-  scale_shape_manual("combine", values = c(2, 1, 0), 
-                     labels = c("LK-Vendace   ", "LS-Cisco   ", "LO-Cisco")) +
-  #scale_linetype_manual("combine", values = c("solid", "dashed", "dotted", "solid"), 
-  #labels = c("LK-Vendace   ", "LK-Whitefish   ", "LS-Cisco   ", "LO-Cisco")) +
-  scale_linetype_manual("combine", values = c("solid", "dotted", "solid"), 
-                        labels = c("LK-Vendace   ", "LS-Cisco   ", "LO-Cisco")) +
-  scale_y_continuous(limits = c(-2, 70), breaks = seq(0, 100, 10), expand = c(0, 0)) +
-  scale_x_continuous(limits = c(1.75, 9.15), breaks = c(2, 4, 4.4, 6.9, 8, 8.9), expand = c(0, 0)) +
+  scale_color_manual("combine", values = c("#000000", "#717171"),
+                     labels = c("Superior   ", "Ontario   ")) +
+  scale_shape_manual("combine", values = c(2, 5), 
+                     labels = c("Superior   ", "Ontario   ")) +
+  scale_linetype_manual("combine", values = c("solid", "dashed"), 
+                        labels = c("Superior   ", "Ontario   ")) +
+  scale_y_continuous(limits = c(-2, 60), breaks = seq(0, 100, 10), expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0.25)) +
   labs(x = "Incubation Temperature (°C)", y = "Maternal Effect (%)") +
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(15, 0, 0, 0)),
@@ -429,4 +408,4 @@ plot.m2.all <- grid.arrange(arrangeGrob(textGrob(""),
                             heights = c(0.025, 1)
 )
 
-ggsave("figures/2020-Larval-Maternal-SE-Line.png", plot = plot.m2.all, width = 11, height = 10, dpi = 300)
+ggsave("figures/2020-Light-Larval-Maternal-SE-Line.png", plot = plot.m2.all, width = 11, height = 10, dpi = 300)
