@@ -51,6 +51,7 @@ write.csv(climate.temp.summary, "data/2020-Artedi-Light-ADD.csv", row.names = FA
 
 
 climate.temp.mean <- climate.temp.all %>% group_by(population, treatment) %>% 
-  summarize(mean.temp = mean(temp_c))
+  summarize(mean.temp = mean(temp_c),
+            sd.temp = sd(temp_c))
 
 
