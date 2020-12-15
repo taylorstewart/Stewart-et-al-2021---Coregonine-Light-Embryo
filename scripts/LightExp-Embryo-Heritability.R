@@ -152,6 +152,48 @@ phenoVar.all <- bind_rows(phenoVar.survival.obs, phenoVar.dpf.obs, phenoVar.ADD.
          population = factor(population, ordered = TRUE, levels = c("Superior", "Ontario")))
 
 
+#### CALCULATE CORRELATIONS ----------------------------------------------------------------------
+
+## Embryo Survival
+phenoVar.survival.cor <- phenoVar.survival.obs %>% 
+  group_by(population) %>% 
+  summarize(dam.cor = cor(dam.perc, 1:3),
+            sire.cor = cor(sire.perc, 1:3),
+            dam.sire.cor = cor(dam.sire.perc, 1:3),
+            error.cor = cor(residual.perc, 1:3)) %>% 
+  mutate_if(is.numeric, round, 2) %>% 
+  mutate(dam.cor.2 = ifelse(dam.cor >= 0.7, "POSITIVE", ifelse(dam.cor <= -0.7, "NEGATIVE", "NC")),
+         sire.cor.2 = ifelse(sire.cor >= 0.7, "POSITIVE", ifelse(sire.cor <= -0.7, "NEGATIVE", "NC")),
+         dam.sire.cor.2 = ifelse(dam.sire.cor >= 0.7, "POSITIVE", ifelse(dam.sire.cor <= -0.7, "NEGATIVE", "NC")),
+         error.cor.2 = ifelse(error.cor >= 0.7, "POSITIVE", ifelse(error.cor <= -0.7, "NEGATIVE", "NC")))
+
+## DPF
+phenoVar.dpf.cor <- phenoVar.dpf.obs %>% 
+  group_by(population) %>% 
+  summarize(dam.cor = cor(dam.perc, 1:3),
+            sire.cor = cor(sire.perc, 1:3),
+            dam.sire.cor = cor(dam.sire.perc, 1:3),
+            error.cor = cor(residual.perc, 1:3)) %>% 
+  mutate_if(is.numeric, round, 2) %>% 
+  mutate(dam.cor.2 = ifelse(dam.cor >= 0.7, "POSITIVE", ifelse(dam.cor <= -0.7, "NEGATIVE", "NC")),
+         sire.cor.2 = ifelse(sire.cor >= 0.7, "POSITIVE", ifelse(sire.cor <= -0.7, "NEGATIVE", "NC")),
+         dam.sire.cor.2 = ifelse(dam.sire.cor >= 0.7, "POSITIVE", ifelse(dam.sire.cor <= -0.7, "NEGATIVE", "NC")),
+         error.cor.2 = ifelse(error.cor >= 0.7, "POSITIVE", ifelse(error.cor <= -0.7, "NEGATIVE", "NC")))
+
+## ADD
+phenoVar.ADD.cor <- phenoVar.ADD.obs %>% 
+  group_by(population) %>% 
+  summarize(dam.cor = cor(dam.perc, 1:3),
+            sire.cor = cor(sire.perc, 1:3),
+            dam.sire.cor = cor(dam.sire.perc, 1:3),
+            error.cor = cor(residual.perc, 1:3)) %>% 
+  mutate_if(is.numeric, round, 2) %>% 
+  mutate(dam.cor.2 = ifelse(dam.cor >= 0.7, "POSITIVE", ifelse(dam.cor <= -0.7, "NEGATIVE", "NC")),
+         sire.cor.2 = ifelse(sire.cor >= 0.7, "POSITIVE", ifelse(sire.cor <= -0.7, "NEGATIVE", "NC")),
+         dam.sire.cor.2 = ifelse(dam.sire.cor >= 0.7, "POSITIVE", ifelse(dam.sire.cor <= -0.7, "NEGATIVE", "NC")),
+         error.cor.2 = ifelse(error.cor >= 0.7, "POSITIVE", ifelse(error.cor <= -0.7, "NEGATIVE", "NC")))
+
+
 #### VISUALIZATION - HERITABILITY ----------------------------------------------------------------
 
 ggplot(phenoVar.all, aes(x = population, y = variance, group = component.trt, fill = component)) + 
