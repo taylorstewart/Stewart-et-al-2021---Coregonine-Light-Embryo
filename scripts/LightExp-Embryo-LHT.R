@@ -11,6 +11,7 @@ library(lme4)
 library(lmerTest)
 library(afex)
 library(buildmer)
+library(car)
 library(emmeans)
 library(ggplot2)
 library(gridExtra)
@@ -60,15 +61,16 @@ hatch.ADD <- hatch %>% filter(!is.na(ADD), hatch == 1) %>% droplevels()
 
 ## backward elimination to select best model
 hatch.survival.glm <- buildmer(hatch ~ population + light + population:light
-                                 (1|female:male) + (1|male) + (1|female) + (1|block) +
-                                 (1|population:female) + (1|population:male) +
-                                 (1|light:female) + (1|light:male), 
+                                 (1|female:male) + (1|male) + (1|female) + (1|block), 
                                direction = 'backward', data = hatch.survival, 
                                family = binomial, control = glmerControl(optimizer = "bobyqa"))
 ( hatch.survival.glm.formula <- formula(hatch.survival.glm@model))
 
 ## fit best model
 hatch.survival.glm.final <- glm(hatch.survival.glm.formula, data = hatch.survival, family = binomial)
+
+## likelihood ratio test for fixed effects
+Anova(hatch.survival.glm.final, method = "LRT", type = "III")
 
 ## Calculate estimated marginal means - be very patient!
 hatch.survival.glm.emm <- emmeans(hatch.survival.glm.final, ~ light | population)
