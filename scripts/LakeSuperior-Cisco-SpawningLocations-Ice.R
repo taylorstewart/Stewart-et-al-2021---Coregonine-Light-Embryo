@@ -47,7 +47,7 @@ spawn.points <- st_as_sf(spawn, coords = c("lon", "lat"), crs = ls_crs)
 
 ice.files <- ice.daily %>%
   group_by(ice.year) %>% 
-  filter(jday >= 46, jday < 100) %>% 
+  filter(jday >= 15, jday < 100) %>% 
   filter(row_number() == 1) %>%
   mutate(date = gsub("-", "", date)) %>% pull(date)
 
@@ -83,45 +83,63 @@ spawn.coord <- spawn.ice.all %>% filter(ice.year == 2019) %>%
 
 ## Calculate percent
 spawn.ice.perc <- spawn.ice.all %>% 
-  mutate(ice.group = ifelse(ice.year < 2000, 1980, 2000)) %>% 
-  group_by(ice.group) %>% 
+  filter(ice.year %in% c(2017, 2018)) %>% 
+  #mutate(ice.group = case_when(ice.year >= 1980 & ice.year < 1990 ~ "1980 - 1990",
+  #                             ice.year >= 2010 & ice.year <= 2020 ~ "2010 - 2020",
+  #                             TRUE ~ "remove")) %>% 
+  #mutate(ice.group = case_when(ice.year >= 1980 & ice.year < 1990 ~ "1980 - 1990",
+  #                             ice.year >= 1990 & ice.year < 2000 ~ "1990 - 2000",
+  #                             ice.year >= 2000 & ice.year < 2010 ~ "2000 - 2010",
+  #                             ice.year >= 2010 & ice.year <= 2020 ~ "2010 - 2020",
+  #                             TRUE ~ "remove")) %>% 
+  #filter(ice.group != "remove") %>% 
+  #group_by(ice.group, location) %>% 
+  group_by(year, location) %>% 
   mutate(ice.logical = ifelse(ice.conc >= 15, 1, 0)) %>% 
-  group_by(location, ice.group) %>% 
-  summarize(annual.ice.perc = mean(ice.logical)) %>% 
-  mutate(annual.ice.perc = ifelse(annual.ice.perc == 0, 0.1, annual.ice.perc),
-         perc.bin = cut(annual.ice.perc, breaks = c(0, 0.25, 0.5, 0.75, 1),
-                        labels = c("< 25%", "25-50%", "50-75%", "> 75%")),
-         ice.group = factor(ice.group, ordered = TRUE,
-                            levels = c(1980, 2000), labels = c("1980 - 2000", "2000 - 2020"))) %>% 
+  #dplyr::summarize(annual.ice.perc = mean(ice.logical)) %>% 
+  #mutate(annual.ice.perc = ifelse(annual.ice.perc == 0, 0.1, annual.ice.perc),
+  #       perc.bin = cut(annual.ice.perc, breaks = c(0, 0.25, 0.5, 0.75, 1),
+  #                      labels = c("< 25%", "25-50%", "50-75%", "> 75%"))) %>% #,
+         #ice.group = factor(ice.group, ordered = TRUE)) %>% 
   left_join(spawn.coord)
 
 spawn.ice.annual <- spawn.ice.all %>% select(-lat, -lon) %>% 
   left_join(spawn.coord)
 
-# VISUALIZATION -------------------------------------------------------------------------------
+
+#### VISUALIZATION -------------------------------------------------------------------------------
 
 ggplot(data = ls_poly.fort, aes(long, lat)) +
   geom_polygon(aes(group = group, fill = hole), 
                color = "black", size = 0.5, show.legend = FALSE) +
   scale_fill_manual(values = c("#e9f3f8", "white", "white")) + 
   new_scale_fill() + 
-  geom_point(data = spawn.ice.perc, aes(x = lon, y = lat, fill = perc.bin), 
+  geom_point(data = spawn.ice.perc, aes(x = lon, y = lat, fill = ice.conc), 
              color = "black", shape = 21, size = 3.75) +
-  scale_fill_manual(values = c("#a1dab4", "#41b6c4", "#2c7fb8", "#253494")) +
+  #scale_fill_manual(values = c("#a1dab4", "#41b6c4", "#2c7fb8", "#253494")) +
+  scale_fill_gradient(low = "blue", high = "white", limits = c(0.0, 100.0), breaks = c(0.0, 25.0, 50.0, 75.0, 100.0)) +
   coord_fixed(ratio = 1.4) +
   scale_x_continuous(limits = c(-92.3, -84.3), breaks = seq(-92, -84, 1), expand = c(0, 0),
                      labels =  paste0(seq(-92, -84, 1), "°")) +
   scale_y_continuous(limits = c(46.35, 49.1), breaks = seq(46.5, 49, 0.5), expand = c(0, 0),
                      labels =  paste0(seq(46.5, 49, 0.5), "°")) +
+  guides(fill = guide_colourbar(title = "Ice Concentration (%)", title.position = "top", direction = "horizontal",
+                                barheight = 1.15, barwidth = 16, 
+                                ticks.colour = "black", ticks.linewidth = 1,
+                                frame.colour = 'black', frame.linewidth = 1)) +
   labs(x = "Longitude", y = "Latitude") +
   guides(fill = guide_legend(nrow = 1, override.aes = list(size = 6))) +
   theme(axis.text = element_text(size = 13),
         axis.title = element_blank(),
         axis.ticks.length = unit(1.5, 'mm'),
-        legend.title = element_blank(), 
+        legend.title = element_text(size = 13), 
+        #legend.title = element_blank(), 
         legend.text = element_text(size = 13),
         legend.key = element_rect(fill = "white"),
-        legend.position = c(0.233, 0.955),
+        legend.position = c(0.2, 0.88),  ## Fill Bar Legend
+        #legend.position = c(0.233, 0.9075),  ## One Panel
+        #legend.position = c(0.233, 0.955),  ## Two Panels
+        #legend.position = c(0.233, 0.955),  ## Four Panels
         legend.background = element_rect(fill = "white", color = "black", size = 0.5, linetype = "solid"),
         strip.text = element_text(size = 14),
         strip.background = element_rect(color = "white", fill = "white"),
@@ -129,9 +147,47 @@ ggplot(data = ls_poly.fort, aes(long, lat)) +
         panel.grid = element_line(linetype = 'dashed', color = "#B0B0B080"), 
         panel.border = element_rect(linetype = 'solid', color = "black", fill = "transparent"),
         panel.ontop = TRUE) +
-  facet_wrap(~ice.group, nrow = 2)
+  facet_wrap(~year, nrow = 2)
 
-ggsave("figures/LakeSuperior-Historical-Ice-CiscoSpawning.png", dpi = 300, width = 10, height = 10)
+ggsave("figures/LakeSuperior-Historical-Ice-CiscoSpawning-FillBar.png", dpi = 300, width = 10, height = 10)
+
+
+ggplot(data = ls_poly.fort, aes(long, lat)) +
+  geom_polygon(aes(group = group, fill = hole), 
+               color = "black", size = 0.5, show.legend = FALSE) +
+  scale_fill_manual(values = c("#e9f3f8", "white", "white")) + 
+  new_scale_fill() + 
+  geom_point(data = spawn.ice.perc, aes(x = lon, y = lat, fill = ice.conc), 
+             color = "black", shape = 21, size = 3.75) +
+  scale_fill_gradient(low = "blue", high = "white", limits = c(0.0, 100.0), breaks = c(0.0, 25.0, 50.0, 75.0, 100.0)) +
+  coord_fixed(ratio = 1.4) +
+  scale_x_continuous(limits = c(-92.3, -84.3), breaks = seq(-92, -84, 1), expand = c(0, 0),
+                     labels =  paste0(seq(-92, -84, 1), "°")) +
+  scale_y_continuous(limits = c(46.35, 49.1), breaks = seq(46.5, 49, 0.5), expand = c(0, 0),
+                     labels =  paste0(seq(46.5, 49, 0.5), "°")) +
+  labs(x = "Longitude", y = "Latitude") +
+  guides(fill = guide_colourbar(title = "Ice Concentration (%)", title.position = "top", direction = "horizontal",
+                                barheight = 1.15, barwidth = 16, 
+                                ticks.colour = "black", ticks.linewidth = 1,
+                                frame.colour = 'black', frame.linewidth = 1)) +
+  theme(axis.text = element_text(size = 12),
+        axis.title = element_blank(),
+        axis.ticks.length = unit(1.5, 'mm'),
+        legend.title = element_text(size = 13), 
+        legend.text = element_text(size = 13),
+        legend.key = element_rect(fill = "white"),
+        legend.position = c(0.2, 0.944),  ## Fill Bar Legend
+        legend.background = element_rect(fill = "white", color = "black", size = 0.5, linetype = "solid"),
+        legend.margin = margin(2, 5.7, 1.5, 3, unit = 'mm'),
+        strip.text = element_text(size = 14),
+        strip.background = element_rect(fill = "transparent"),
+        panel.background = element_rect(fill = "transparent"), 
+        panel.grid = element_line(linetype = 'dashed', color = "#B0B0B080"), 
+        panel.border = element_rect(linetype = 'solid', color = "black", fill = "transparent"),
+        panel.ontop = TRUE) +
+  facet_wrap(~year, nrow = 2)
+
+ggsave("figures/LakeSuperior-Historical-Ice-CiscoSpawning-FillBar.png", dpi = 300, width = 10, height = 10)
 
 
 lapply(unique(spawn.ice.annual$ice.year), function(k) {

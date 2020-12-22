@@ -101,7 +101,7 @@ ggplot(ice.light.tidy, aes(x = timestamp, y = value, group = measurement)) +
   scale_x_datetime(date_labels = "%m/%Y", date_breaks = "1 month", expand = c(0,0)) +
   scale_y_continuous(limits = c(0, 100), breaks = seq(10, 100, 10), expand = c(0, 0)) +
   scale_color_manual(values = c("#0091e6", "gray50"), labels = c("Ice", "Light")) +
-  labs(y = expression(paste("Ice Coverage (%)\n\nPhoton Flux (μmol ", m^-2, " ", s^-1, ")", sep="")), x = "") +
+  labs(y = expression(paste("Ice Coverage (%)\n\nLight Intensity (μmol ", m^-2, " ", s^-1, ")", sep="")), x = "") +
   theme_bw() +
   theme(panel.grid = element_blank(), 
         axis.text = element_text(size = 25),
@@ -113,8 +113,7 @@ ggplot(ice.light.tidy, aes(x = timestamp, y = value, group = measurement)) +
         legend.key.width = unit(2.5, 'lines'), 
         legend.key.height = unit(1.5, 'lines'),
         legend.key = element_rect(fill = "white"), 
-        strip.background = element_blank(),
-        strip.text.x = element_blank(),
         plot.margin = unit(c(5, 20, 0, 20), "mm"))
 
 ggsave("figures/2017-Ice-Light.png", dpi = 300, width = 15, height = 7.5)
+

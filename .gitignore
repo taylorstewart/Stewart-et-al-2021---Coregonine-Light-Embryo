@@ -43,4 +43,4 @@ data/.DS_Store
 data/HOBO/.DS_Store
 
 # Ignore files too large to push
-data/Heritability_Bootstrap/
+data/PhenoVar_Bootstrap/
