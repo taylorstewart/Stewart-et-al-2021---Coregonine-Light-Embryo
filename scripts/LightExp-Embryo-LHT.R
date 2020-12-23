@@ -187,7 +187,8 @@ hatch.ADD.summary.stand <- hatch.ADD.summary.family %>% left_join(hatch.ADD.stan
   mutate(se.ADD.diff = ifelse(se.ADD.diff == 0, NA, se.ADD.diff),
          percent.loss = 100-mean.ADD.diff)
 
-# VISUALIZATIONS - MEANS ----------------------------------------------------------------------
+
+#### VISUALIZATIONS - MEANS ----------------------------------------------------------------------
 
 ## Embryo Survival
 plot.survival <- ggplot(hatch.survival.summary, aes(x = light, y = (mean.hatch * 100), group = population, color = population, shape = population, linetype = population)) + 
@@ -208,8 +209,8 @@ plot.survival <- ggplot(hatch.survival.summary, aes(x = light, y = (mean.hatch *
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
         axis.title.y = element_text(color = "Black", size = 22, margin = margin(0, 10, 0, 0)),
-        axis.text.x = element_text(size = 16),
-        axis.text.y = element_text(size = 16),
+        axis.text.x = element_text(size = 18),
+        axis.text.y = element_text(size = 18),
         axis.ticks.length = unit(2, 'mm'),
         legend.title = element_blank(),
         legend.text = element_text(size = 20),
@@ -230,8 +231,8 @@ plot.survival.stand <- ggplot(hatch.survival.summary.stand, aes(x = population, 
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
         axis.title.y = element_text(color = "Black", size = 22, margin = margin(0, 10, 0, 0)),
-        axis.text.x = element_text(size = 16),
-        axis.text.y = element_text(size = 16),
+        axis.text.x = element_text(size = 18),
+        axis.text.y = element_text(size = 18),
         axis.ticks.length = unit(2, 'mm'),
         legend.title = element_blank(),
         legend.text = element_text(size = 20),
@@ -247,7 +248,7 @@ plot.dpf <- ggplot(hatch.dpf.summary, aes(x = light, y = mean.dpf, group = popul
                 position = position_dodge(0.13),
                 size = 0.8, width = 0.1, linetype = "solid", show.legend = FALSE) +
   scale_x_discrete(labels = c("High", "Medium", "Low"), expand = c(0, 0.1)) +
-  scale_y_continuous(limits = c(85, 130), breaks = seq(90, 130, 10), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(95, 120), breaks = seq(95, 130, 5), expand = c(0, 0)) +
   scale_color_grey("combine", start = 0.0, end = 0.6,
                    labels = c("Superior   ", "Ontario")) +
   scale_shape_manual("combine", values = c(1, 2), 
@@ -258,8 +259,8 @@ plot.dpf <- ggplot(hatch.dpf.summary, aes(x = light, y = mean.dpf, group = popul
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
         axis.title.y = element_text(color = "Black", size = 22, margin = margin(0, 10, 0, 0)),
-        axis.text.x = element_text(size = 16),
-        axis.text.y = element_text(size = 16),
+        axis.text.x = element_text(size = 18),
+        axis.text.y = element_text(size = 18),
         axis.ticks.length = unit(2, 'mm'),
         legend.title = element_blank(),
         legend.text = element_text(size = 20),
@@ -281,8 +282,8 @@ plot.dpf.stand <- ggplot(hatch.dpf.summary.stand, aes(x = population, y = mean.d
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
         axis.title.y = element_text(color = "Black", size = 22, margin = margin(0, 10, 0, 0)),
-        axis.text.x = element_text(size = 16),
-        axis.text.y = element_text(size = 16),
+        axis.text.x = element_text(size = 18),
+        axis.text.y = element_text(size = 18),
         axis.ticks.length = unit(2, 'mm'),
         legend.title = element_blank(),
         legend.text = element_text(size = 20),
@@ -298,7 +299,7 @@ plot.ADD <- ggplot(hatch.ADD.summary, aes(x = light, y = mean.ADD, group = popul
                 position = position_dodge(0.13),
                 size = 0.8, width = 0.1, linetype = "solid", show.legend = FALSE) +
   scale_x_discrete(labels = c("High", "Medium", "Low"), expand = c(0, 0.1)) +
-  scale_y_continuous(limits = c(350, 550), breaks = seq(350, 550, 50), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(400, 515), breaks = seq(350, 550, 25), expand = c(0, 0)) +
   scale_color_grey("combine", start = 0.0, end = 0.6,
                    labels = c("Superior   ", "Ontario")) +
   scale_shape_manual("combine", values = c(1, 2), 
@@ -309,8 +310,8 @@ plot.ADD <- ggplot(hatch.ADD.summary, aes(x = light, y = mean.ADD, group = popul
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
         axis.title.y = element_text(color = "Black", size = 22, margin = margin(0, 10, 0, 0)),
-        axis.text.x = element_text(size = 16),
-        axis.text.y = element_text(size = 16),
+        axis.text.x = element_text(size = 18),
+        axis.text.y = element_text(size = 18),
         axis.ticks.length = unit(2, 'mm'),
         legend.title = element_blank(),
         legend.text = element_text(size = 20),
@@ -331,8 +332,8 @@ plot.ADD.stand <- ggplot(hatch.ADD.summary.stand, aes(x = population, y = mean.A
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
         axis.title.y = element_text(color = "Black", size = 22, margin = margin(0, 10, 0, 0)),
-        axis.text.x = element_text(size = 16),
-        axis.text.y = element_text(size = 16),
+        axis.text.x = element_text(size = 18),
+        axis.text.y = element_text(size = 18),
         axis.ticks.length = unit(2, 'mm'),
         legend.title = element_blank(),
         legend.text = element_text(size = 20),

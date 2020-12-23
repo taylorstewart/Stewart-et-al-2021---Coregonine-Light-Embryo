@@ -129,7 +129,7 @@ lo.spawn.coord <- lo.spawn.ice.all %>% filter(ice.year == 2019) %>%
 
 ## Calculate percent
 ls.spawn.ice.perc <- ls.spawn.ice.all %>% 
-  filter(ice.year %in% c(2018, 2019)) %>% 
+  filter(ice.year %in% c(2015, 2016, 2017, 2018, 2019)) %>% 
   left_join(ls.spawn.coord)
 
 ls.mean.ice <- ls.spawn.ice.perc %>% 
@@ -138,7 +138,7 @@ ls.mean.ice <- ls.spawn.ice.perc %>%
 
 
 lo.spawn.ice.perc <- lo.spawn.ice.all %>% 
-  filter(ice.year %in% c(2018, 2019)) %>% 
+  filter(ice.year %in% c(2015, 2016, 2017, 2018, 2019)) %>% 
   left_join(lo.spawn.coord)
 
 lo.mean.ice <- lo.spawn.ice.perc %>% 
@@ -148,12 +148,12 @@ lo.mean.ice <- lo.spawn.ice.perc %>%
 
 #### VISUALIZATION -------------------------------------------------------------------------------
 
-plot.ls.2019 <- ggplot(data = ls.poly.fort, aes(long, lat)) +
+plot.ls.2016 <- ggplot(data = ls.poly.fort, aes(long, lat)) +
   geom_polygon(aes(group = group, fill = hole), 
                color = "gray50", size = 0.5, show.legend = FALSE) +
   scale_fill_manual(values = c("#e9f3f8", "white", "white")) + 
   new_scale_fill() + 
-  geom_point(data = filter(ls.spawn.ice.perc, year == 2019), aes(x = lon, y = lat, fill = ice.conc), 
+  geom_point(data = filter(ls.spawn.ice.perc, year == 2016), aes(x = lon, y = lat, fill = ice.conc), 
              color = "black", shape = 21, size = 3.75) +
   scale_fill_gradient(low = "blue", high = "white", limits = c(0.0, 100.0), breaks = c(0.0, 25.0, 50.0, 75.0, 100.0)) +
   coord_fixed(ratio = 1.4) +
@@ -161,9 +161,9 @@ plot.ls.2019 <- ggplot(data = ls.poly.fort, aes(long, lat)) +
                      labels =  paste0(seq(-92, -84, 1), "°")) +
   scale_y_continuous(limits = c(46.35, 49.1), breaks = seq(46.5, 49, 0.5), expand = c(0, 0),
                      labels =  paste0(seq(46.5, 49, 0.5), "°")) +
-  annotate("text", label = paste0("Mean Ice Concentration: ", filter(ls.mean.ice, year == 2019)$mean.ice), 
-           x = -92.15, y = 48.375, hjust = 0, size = 5) + 
-  labs(x = "Longitude", y = "Latitude", title = "31 January 2019") +
+  annotate("text", label = paste0("Mean Ice Concentration: ", filter(ls.mean.ice, year == 2016)$mean.ice), 
+           x = -92.2, y = 48.395, hjust = 0, size = 5) + 
+  labs(x = "Longitude", y = "Latitude", title = "31 January 2016") +
   guides(fill = guide_colourbar(title = "Ice Concentration (%)", title.position = "top", direction = "horizontal",
                                 barheight = 1, barwidth = 15, 
                                 ticks.colour = "black", ticks.linewidth = 1,
@@ -183,12 +183,102 @@ plot.ls.2019 <- ggplot(data = ls.poly.fort, aes(long, lat)) +
         panel.border = element_rect(linetype = 'solid', color = "black", fill = "transparent"),
         panel.ontop = TRUE)
 
+plot.ls.2017 <- ggplot(data = ls.poly.fort, aes(long, lat)) +
+  geom_polygon(aes(group = group, fill = hole), 
+               color = "gray50", size = 0.5, show.legend = FALSE) +
+  scale_fill_manual(values = c("#e9f3f8", "white", "white")) + 
+  new_scale_fill() + 
+  geom_point(data = filter(ls.spawn.ice.perc, year == 2017), aes(x = lon, y = lat, fill = ice.conc), 
+             color = "black", shape = 21, size = 3.75) +
+  scale_fill_gradient(low = "blue", high = "white", limits = c(0.0, 100.0), breaks = c(0.0, 25.0, 50.0, 75.0, 100.0)) +
+  coord_fixed(ratio = 1.4) +
+  scale_x_continuous(limits = c(-92.3, -84.3), breaks = seq(-92, -84, 1), expand = c(0, 0),
+                     labels =  paste0(seq(-92, -84, 1), "°")) +
+  scale_y_continuous(limits = c(46.35, 49.1), breaks = seq(46.5, 49, 0.5), expand = c(0, 0),
+                     labels =  paste0(seq(46.5, 49, 0.5), "°")) +
+  annotate("text", label = paste0("Mean Ice Concentration: ", filter(ls.mean.ice, year == 2017)$mean.ice), 
+           x = -92.2, y = 48.995, hjust = 0, size = 5) + 
+  labs(x = "Longitude", y = "Latitude", title = "31 January 2017") +
+  guides(fill = guide_colourbar(title = "Ice Concentration (%)", title.position = "top", direction = "horizontal",
+                                barheight = 1.15, barwidth = 16, 
+                                ticks.colour = "black", ticks.linewidth = 1,
+                                frame.colour = 'black', frame.linewidth = 1)) +
+  theme(axis.text = element_text(size = 12),
+        axis.title = element_blank(),
+        axis.ticks.length = unit(1.5, 'mm'),
+        plot.title = element_text(size = 14, hjust = 0.5),
+        legend.position = "none",
+        panel.background = element_rect(fill = "transparent"), 
+        panel.grid = element_line(linetype = 'dashed', color = "#B0B0B080"), 
+        panel.border = element_rect(linetype = 'solid', color = "black", fill = "transparent"),
+        panel.ontop = TRUE)
+
+plot.ls.2018 <- ggplot(data = ls.poly.fort, aes(long, lat)) +
+  geom_polygon(aes(group = group, fill = hole), 
+               color = "gray50", size = 0.5, show.legend = FALSE) +
+  scale_fill_manual(values = c("#e9f3f8", "white", "white")) + 
+  new_scale_fill() + 
+  geom_point(data = filter(ls.spawn.ice.perc, year == 2017), aes(x = lon, y = lat, fill = ice.conc), 
+             color = "black", shape = 21, size = 3.75) +
+  scale_fill_gradient(low = "blue", high = "white", limits = c(0.0, 100.0), breaks = c(0.0, 25.0, 50.0, 75.0, 100.0)) +
+  coord_fixed(ratio = 1.4) +
+  scale_x_continuous(limits = c(-92.3, -84.3), breaks = seq(-92, -84, 1), expand = c(0, 0),
+                     labels =  paste0(seq(-92, -84, 1), "°")) +
+  scale_y_continuous(limits = c(46.35, 49.1), breaks = seq(46.5, 49, 0.5), expand = c(0, 0),
+                     labels =  paste0(seq(46.5, 49, 0.5), "°")) +
+  annotate("text", label = paste0("Mean Ice Concentration: ", filter(ls.mean.ice, year == 2018)$mean.ice), 
+           x = -92.2, y = 48.995, hjust = 0, size = 5) + 
+  labs(x = "Longitude", y = "Latitude", title = "31 January 2018") +
+  guides(fill = guide_colourbar(title = "Ice Concentration (%)", title.position = "top", direction = "horizontal",
+                                barheight = 1.15, barwidth = 16, 
+                                ticks.colour = "black", ticks.linewidth = 1,
+                                frame.colour = 'black', frame.linewidth = 1)) +
+  theme(axis.text = element_text(size = 12),
+        axis.title = element_blank(),
+        axis.ticks.length = unit(1.5, 'mm'),
+        plot.title = element_text(size = 14, hjust = 0.5),
+        legend.position = "none",
+        panel.background = element_rect(fill = "transparent"), 
+        panel.grid = element_line(linetype = 'dashed', color = "#B0B0B080"), 
+        panel.border = element_rect(linetype = 'solid', color = "black", fill = "transparent"),
+        panel.ontop = TRUE)
+
+plot.ls.2019 <- ggplot(data = ls.poly.fort, aes(long, lat)) +
+  geom_polygon(aes(group = group, fill = hole), 
+               color = "gray50", size = 0.5, show.legend = FALSE) +
+  scale_fill_manual(values = c("#e9f3f8", "white", "white")) + 
+  new_scale_fill() + 
+  geom_point(data = filter(ls.spawn.ice.perc, year == 2017), aes(x = lon, y = lat, fill = ice.conc), 
+             color = "black", shape = 21, size = 3.75) +
+  scale_fill_gradient(low = "blue", high = "white", limits = c(0.0, 100.0), breaks = c(0.0, 25.0, 50.0, 75.0, 100.0)) +
+  coord_fixed(ratio = 1.4) +
+  scale_x_continuous(limits = c(-92.3, -84.3), breaks = seq(-92, -84, 1), expand = c(0, 0),
+                     labels =  paste0(seq(-92, -84, 1), "°")) +
+  scale_y_continuous(limits = c(46.35, 49.1), breaks = seq(46.5, 49, 0.5), expand = c(0, 0),
+                     labels =  paste0(seq(46.5, 49, 0.5), "°")) +
+  annotate("text", label = paste0("Mean Ice Concentration: ", filter(ls.mean.ice, year == 2019)$mean.ice), 
+           x = -92.2, y = 48.995, hjust = 0, size = 5) + 
+  labs(x = "Longitude", y = "Latitude", title = "31 January 2019") +
+  guides(fill = guide_colourbar(title = "Ice Concentration (%)", title.position = "top", direction = "horizontal",
+                                barheight = 1.15, barwidth = 16, 
+                                ticks.colour = "black", ticks.linewidth = 1,
+                                frame.colour = 'black', frame.linewidth = 1)) +
+  theme(axis.text = element_text(size = 12),
+        axis.title = element_blank(),
+        axis.ticks.length = unit(1.5, 'mm'),
+        plot.title = element_text(size = 14, hjust = 0.5),
+        legend.position = "none",
+        panel.background = element_rect(fill = "transparent"), 
+        panel.grid = element_line(linetype = 'dashed', color = "#B0B0B080"), 
+        panel.border = element_rect(linetype = 'solid', color = "black", fill = "transparent"),
+        panel.ontop = TRUE)
+
 plot.ls.2020 <- ggplot(data = ls.poly.fort, aes(long, lat)) +
   geom_polygon(aes(group = group, fill = hole), 
                color = "gray50", size = 0.5, show.legend = FALSE) +
   scale_fill_manual(values = c("#e9f3f8", "white", "white")) + 
   new_scale_fill() + 
-  geom_point(data = filter(ls.spawn.ice.perc, year == 2020), aes(x = lon, y = lat, fill = ice.conc), 
+  geom_point(data = filter(ls.spawn.ice.perc, year == 2017), aes(x = lon, y = lat, fill = ice.conc), 
              color = "black", shape = 21, size = 3.75) +
   scale_fill_gradient(low = "blue", high = "white", limits = c(0.0, 100.0), breaks = c(0.0, 25.0, 50.0, 75.0, 100.0)) +
   coord_fixed(ratio = 1.4) +
@@ -197,12 +287,91 @@ plot.ls.2020 <- ggplot(data = ls.poly.fort, aes(long, lat)) +
   scale_y_continuous(limits = c(46.35, 49.1), breaks = seq(46.5, 49, 0.5), expand = c(0, 0),
                      labels =  paste0(seq(46.5, 49, 0.5), "°")) +
   annotate("text", label = paste0("Mean Ice Concentration: ", filter(ls.mean.ice, year == 2020)$mean.ice), 
-           x = -92.15, y = 48.975, hjust = 0, size = 5) + 
+           x = -92.2, y = 48.995, hjust = 0, size = 5) + 
   labs(x = "Longitude", y = "Latitude", title = "31 January 2020") +
   guides(fill = guide_colourbar(title = "Ice Concentration (%)", title.position = "top", direction = "horizontal",
                                 barheight = 1.15, barwidth = 16, 
                                 ticks.colour = "black", ticks.linewidth = 1,
                                 frame.colour = 'black', frame.linewidth = 1)) +
+  theme(axis.text = element_text(size = 12),
+        axis.title = element_blank(),
+        axis.ticks.length = unit(1.5, 'mm'),
+        plot.title = element_text(size = 14, hjust = 0.5),
+        legend.position = "none",
+        panel.background = element_rect(fill = "transparent"), 
+        panel.grid = element_line(linetype = 'dashed', color = "#B0B0B080"), 
+        panel.border = element_rect(linetype = 'solid', color = "black", fill = "transparent"),
+        panel.ontop = TRUE)
+
+## Lake Ontario
+plot.lo.2016 <- ggplot(data = lo.poly.fort, aes(long, lat)) +
+  geom_polygon(aes(group = group, fill = hole), 
+               color = "gray50", size = 0.5, show.legend = FALSE) +
+  scale_fill_manual(values = c("#e9f3f8", "white", "white")) + 
+  new_scale_fill() + 
+  geom_point(data = filter(lo.spawn.ice.perc, year == 2016), aes(x = lon, y = lat, fill = ice.conc), 
+             color = "black", shape = 21, size = 3.75) +
+  scale_fill_gradient(low = "blue", high = "white", limits = c(0.0, 100.0), breaks = c(0.0, 25.0, 50.0, 75.0, 100.0)) +
+  coord_fixed(ratio = 1.5) +
+  scale_x_continuous(limits = c(-80.0, -75.85), breaks = seq(-80, -75, 0.5), expand = c(0, 0),
+                     labels =  paste0(seq(-80, -75, 0.5), "°")) +
+  scale_y_continuous(limits = c(43.12, 44.45), breaks = seq(43.25, 44.75, 0.25), expand = c(0, 0),
+                     labels =  paste0(seq(43.25, 44.75, 0.25), "°")) +
+  annotate("text", label = paste0("Mean Ice Concentration: ", filter(lo.mean.ice, year == 2016)$mean.ice), 
+           x = -79.95, y = 44.3915, hjust = 0, size = 5) + 
+  labs(x = "Longitude", y = "Latitude", title = "31 January 2016") +
+  theme(axis.text = element_text(size = 12),
+        axis.title = element_blank(),
+        axis.ticks.length = unit(1.5, 'mm'),
+        plot.title = element_text(size = 14, hjust = 0.5),
+        legend.position = "none",
+        panel.background = element_rect(fill = "transparent"), 
+        panel.grid = element_line(linetype = 'dashed', color = "#B0B0B080"), 
+        panel.border = element_rect(linetype = 'solid', color = "black", fill = "transparent"),
+        panel.ontop = TRUE)
+
+plot.lo.2017 <- ggplot(data = lo.poly.fort, aes(long, lat)) +
+  geom_polygon(aes(group = group, fill = hole), 
+               color = "gray50", size = 0.5, show.legend = FALSE) +
+  scale_fill_manual(values = c("#e9f3f8", "white", "white")) + 
+  new_scale_fill() + 
+  geom_point(data = filter(lo.spawn.ice.perc, year == 2017), aes(x = lon, y = lat, fill = ice.conc), 
+             color = "black", shape = 21, size = 3.75) +
+  scale_fill_gradient(low = "blue", high = "white", limits = c(0.0, 100.0), breaks = c(0.0, 25.0, 50.0, 75.0, 100.0)) +
+  coord_fixed(ratio = 1.5) +
+  scale_x_continuous(limits = c(-80.0, -75.85), breaks = seq(-80, -75, 0.5), expand = c(0, 0),
+                     labels =  paste0(seq(-80, -75, 0.5), "°")) +
+  scale_y_continuous(limits = c(43.12, 44.45), breaks = seq(43.25, 44.75, 0.25), expand = c(0, 0),
+                     labels =  paste0(seq(43.25, 44.75, 0.25), "°")) +
+  annotate("text", label = paste0("Mean Ice Concentration: ", filter(lo.mean.ice, year == 2017)$mean.ice), 
+           x = -79.95, y = 44.3915, hjust = 0, size = 5) + 
+  labs(x = "Longitude", y = "Latitude", title = "31 January 2017") +
+  theme(axis.text = element_text(size = 12),
+        axis.title = element_blank(),
+        axis.ticks.length = unit(1.5, 'mm'),
+        plot.title = element_text(size = 14, hjust = 0.5),
+        legend.position = "none",
+        panel.background = element_rect(fill = "transparent"), 
+        panel.grid = element_line(linetype = 'dashed', color = "#B0B0B080"), 
+        panel.border = element_rect(linetype = 'solid', color = "black", fill = "transparent"),
+        panel.ontop = TRUE)
+
+plot.lo.2018 <- ggplot(data = lo.poly.fort, aes(long, lat)) +
+  geom_polygon(aes(group = group, fill = hole), 
+               color = "gray50", size = 0.5, show.legend = FALSE) +
+  scale_fill_manual(values = c("#e9f3f8", "white", "white")) + 
+  new_scale_fill() + 
+  geom_point(data = filter(lo.spawn.ice.perc, year == 2018), aes(x = lon, y = lat, fill = ice.conc), 
+             color = "black", shape = 21, size = 3.75) +
+  scale_fill_gradient(low = "blue", high = "white", limits = c(0.0, 100.0), breaks = c(0.0, 25.0, 50.0, 75.0, 100.0)) +
+  coord_fixed(ratio = 1.5) +
+  scale_x_continuous(limits = c(-80.0, -75.85), breaks = seq(-80, -75, 0.5), expand = c(0, 0),
+                     labels =  paste0(seq(-80, -75, 0.5), "°")) +
+  scale_y_continuous(limits = c(43.12, 44.45), breaks = seq(43.25, 44.75, 0.25), expand = c(0, 0),
+                     labels =  paste0(seq(43.25, 44.75, 0.25), "°")) +
+  annotate("text", label = paste0("Mean Ice Concentration: ", filter(lo.mean.ice, year == 2018)$mean.ice), 
+           x = -79.95, y = 44.3915, hjust = 0, size = 5) + 
+  labs(x = "Longitude", y = "Latitude", title = "31 January 2018") +
   theme(axis.text = element_text(size = 12),
         axis.title = element_blank(),
         axis.ticks.length = unit(1.5, 'mm'),
@@ -227,7 +396,7 @@ plot.lo.2019 <- ggplot(data = lo.poly.fort, aes(long, lat)) +
   scale_y_continuous(limits = c(43.12, 44.45), breaks = seq(43.25, 44.75, 0.25), expand = c(0, 0),
                      labels =  paste0(seq(43.25, 44.75, 0.25), "°")) +
   annotate("text", label = paste0("Mean Ice Concentration: ", filter(lo.mean.ice, year == 2019)$mean.ice), 
-           x = -79.95, y = 44.39, hjust = 0, size = 5) + 
+           x = -79.95, y = 44.3915, hjust = 0, size = 5) + 
   labs(x = "Longitude", y = "Latitude", title = "31 January 2019") +
   theme(axis.text = element_text(size = 12),
         axis.title = element_blank(),
@@ -253,7 +422,7 @@ plot.lo.2020 <- ggplot(data = lo.poly.fort, aes(long, lat)) +
   scale_y_continuous(limits = c(43.12, 44.45), breaks = seq(43.25, 44.75, 0.25), expand = c(0, 0),
                      labels =  paste0(seq(43.25, 44.75, 0.25), "°")) +
   annotate("text", label = paste0("Mean Ice Concentration: ", filter(lo.mean.ice, year == 2020)$mean.ice), 
-           x = -79.95, y = 44.39, hjust = 0, size = 5) + 
+           x = -79.95, y = 44.3915, hjust = 0, size = 5) + 
   labs(x = "Longitude", y = "Latitude", title = "31 January 2020") +
   theme(axis.text = element_text(size = 12),
         axis.title = element_blank(),
@@ -268,6 +437,12 @@ plot.lo.2020 <- ggplot(data = lo.poly.fort, aes(long, lat)) +
 
 plot.all <- grid.arrange(
   arrangeGrob(
+    plot.ls.2016,
+    plot.lo.2016,
+    plot.ls.2017,
+    plot.lo.2017,
+    plot.ls.2018,
+    plot.lo.2018,
     plot.ls.2019,
     plot.lo.2019,
     plot.ls.2020,
@@ -277,5 +452,5 @@ plot.all <- grid.arrange(
   )
 )
 
-ggsave("figures/Historical-Ice-CiscoSpawning-FillBar.png", plot = plot.all, dpi = 300, width = 20, height = 10)
+ggsave("figures/Historical-Ice-CiscoSpawning-FillBar.png", plot = plot.all, dpi = 300, width = 20, height = 25)
 
