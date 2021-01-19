@@ -30,11 +30,11 @@ ADD <- read.csv("data/Artedi-Light-ADD-2020.csv", header = TRUE) %>%
 #### LOAD HATCHING DATA ------------------------------------------------------
 
 hatch <- read_excel("data/Coregonine-Light-Experiment-Hatch.xlsx", sheet = "2020HatchingData") %>% 
-  filter(include == "y", block != "A" | population != "superior") %>% 
+  filter(block != "A" | population != "superior") %>% 
   mutate(eye = as.numeric(eye),
          hatch = as.numeric(hatch)) %>% 
   left_join(ADD) %>% 
-  dplyr::select(population, light, male, female, block, eye, hatch, dpf, ADD) %>% 
+  dplyr::select(population, light, male, female, block, no, eye, hatch, dpf, ADD, include.survival, include.incubation) %>% 
   mutate(population = factor(population, levels = c("Superior", "Ontario"), ordered = TRUE),
          light = factor(light, ordered = TRUE, levels = c("High", "Medium", "Low")),
          female = factor(female, levels = seq(1, 12, 1),
@@ -42,19 +42,24 @@ hatch <- read_excel("data/Coregonine-Light-Experiment-Hatch.xlsx", sheet = "2020
          male = factor(male, levels = seq(1, 16, 1),
                        labels = c("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12", "M13", "M14", "M15", "M16")),
          family = factor(paste0(female, male)),
-         block = factor(block))
+         block = factor(block),
+         trans.dpf = dpf^(1/3),
+         trans.ADD = ADD^(1/3))
 
 
 #### FILTER TO EACH TRAITS' DATASET --------------------------------------------------------------
 
 ## filter to only eyed embryos
-hatch.survival <- hatch %>% filter(eye != 0) %>% droplevels()
+hatch.survival <- hatch %>% filter(eye != 0) %>% droplevels() %>% 
+  filter(include.survival == "y")
 
 ## filter to only hatched embryos
-hatch.dpf <- hatch %>% filter(!is.na(dpf), hatch == 1) %>% droplevels()
+hatch.dpf <- hatch %>% filter(!is.na(dpf), hatch == 1) %>% droplevels() %>% 
+  filter(include.incubation == "y")
 
 ## filter to only hatched embryos
-hatch.ADD <- hatch %>% filter(!is.na(ADD), hatch == 1) %>% droplevels()
+hatch.ADD <- hatch %>% filter(!is.na(ADD), hatch == 1) %>% droplevels() %>% 
+  filter(include.incubation == "y")
 
 
 #### STATISTICAL ANALYSIS - SURVIVAL -----------------------------------------
@@ -82,7 +87,7 @@ pairs(hatch.survival.glm.emm, simple = list("light", "population"), type = "resp
 #### STATISTICAL ANALYSIS - INCUBATION PERIOD (DPF) --------------------------
 
 ## fit full model
-hatch.dpf.glm.full <- lmer(dpf ~ 1 + light + population + light:population + 
+hatch.dpf.glm.full <- lmer(trans.dpf ~ 1 + light + population + light:population + 
                              (1|female:male) + (1|male) + (1|female) + (1|block), 
                            data = hatch.dpf)
 
@@ -93,6 +98,10 @@ hatch.dpf.glm <- step(hatch.dpf.glm.full)
 ## fit best model
 hatch.dpf.glm.final <- lmer(hatch.dpf.glm.formula, data = hatch.dpf)
 
+## check residuals for normality
+lattice::qqmath(hatch.dpf.glm.final, id = 0.1, idLabels = ~.obs)
+hist(rstudent(hatch.dpf.glm.final))
+
 ## likelihood ratio test for fixed and random effects
 mixed(hatch.dpf.glm.formula, data = hatch.dpf, method = "LRT")
 rand(hatch.dpf.glm.final)
@@ -101,7 +110,7 @@ rand(hatch.dpf.glm.final)
 #### STATISTICAL ANALYSIS - INCUBATION PERIOD (ADD) --------------------------
 
 ## fit full model
-hatch.ADD.glm.full <- lmer(ADD ~ 1 + light + population + light:population + 
+hatch.ADD.glm.full <- lmer(trans.ADD ~ 1 + light + population + light:population + 
                              (1|female:male) + (1|male) + (1|female) + (1|block), 
                            data = hatch.ADD)
 
@@ -111,6 +120,10 @@ hatch.ADD.glm <- step(hatch.ADD.glm.full)
 
 ## fit best model
 hatch.ADD.glm.final <- lmer(hatch.ADD.glm.formula, data = hatch.ADD)
+
+## check residuals for normality
+lattice::qqmath(hatch.ADD.glm.final, id = 0.1, idLabels = ~.obs)
+hist(rstudent(hatch.ADD.glm.final))
 
 ## likelihood ratio test for fixed and random effects
 mixed(hatch.ADD.glm.formula, data = hatch.ADD, method = "LRT")

@@ -31,22 +31,26 @@ larval <- bind_rows(larval.ls, larval.lo) %>%
                          labels = c("F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12")),
          male = factor(male, levels = seq(1, 16, 1),
                        labels = c("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12", "M13", "M14", "M15", "M16")),
-         block = factor(block))
+         block = factor(block),
+         trans.yolk = y_vol_mm3^(1/3),
+         trans.tl = length_mm^3)
 
 
 #### FILTER TO EACH TRAITS' DATASET --------------------------------------------------------------
 
-larval.tl <- larval %>% filter(!is.na(length_mm), length_mm != 0) %>% droplevels()
-larval.yolk <- larval %>% filter(!is.na(y_vol_mm3), y_vol_mm3 != 0) %>% droplevels()
+larval.tl <- larval %>% filter(!is.na(length_mm), length_mm != 0) %>% droplevels() %>% 
+  filter(include.tl == "y")
+larval.yolk <- larval %>% filter(!is.na(y_vol_mm3), y_vol_mm3 != 0) %>% droplevels() %>% 
+  filter(include.yolk == "y")
 
 ## Clean up environment
-rm(larval.lo, larval.ls)
+#rm(larval.lo, larval.ls)
 
 
 # STATISTICAL ANALYSIS - LENGTH-AT-HATCH - NA -------------------------------------------------
 
 ## fit full model
-larval.tl.glm.full <- lmer(length_mm ~ 1 + light + population + light:population + 
+larval.tl.glm.full <- lmer(trans.tl ~ 1 + light + population + light:population + 
                              (1|family) + (1|male) + (1|female) + (1|block), 
                               data = larval.tl)
 
@@ -56,6 +60,10 @@ larval.tl.glm <- step(larval.tl.glm.full)
 
 ## fit best model
 larval.tl.glm.final <- lmer(larval.tl.glm.formula, data = larval.tl)
+
+## check residuals for normality
+lattice::qqmath(larval.tl.glm.final, id = 0.1, idLabels = ~.obs)
+hist(rstudent(larval.tl.glm.final))
 
 ## likelihood ratio test for fixed and random effects
 mixed(larval.tl.glm.formula, data = larval.tl, method = "LRT")
@@ -71,7 +79,7 @@ pairs(larval.tl.glm.emm, simple = list("population"), adjust = "tukey", type = "
 #### STATISTICAL ANALYSIS - YOLK-SAC VOLUME ------------------------------------------------------
 
 ## fit full model
-larval.yolk.glm.full <- lmer(y_vol_mm3 ~ 1 + light + population + light:population + 
+larval.yolk.glm.full <- lmer(trans.yolk ~ 1 + light + population + light:population + 
                                 (1|family) + (1|male) + (1|female) + (1|block), 
                               data = larval.yolk)
 
@@ -81,6 +89,10 @@ larval.yolk.glm <- step(larval.yolk.glm.full)
 
 ## fit best model
 larval.yolk.glm.final <- lmer(larval.yolk.glm.formula, data = larval.yolk)
+
+## check residuals for normality
+lattice::qqmath(larval.yolk.glm.final, id = 0.1, idLabels = ~.obs)
+hist(rstudent(larval.yolk.glm.final))
 
 ## likelihood ratio test for fixed and random effects
 mixed(larval.yolk.glm.formula, data = larval.yolk, method = "LRT")
