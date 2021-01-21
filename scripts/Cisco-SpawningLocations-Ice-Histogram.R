@@ -125,65 +125,42 @@ lo.spawn.ice.mean <- lo.spawn.ice.all %>% group_by(year) %>%
 
 spawn.ice.all <- bind_rows(ls.spawn.ice.mean, lo.spawn.ice.mean) %>% 
   mutate(lake = factor(rep(c("Superior", "Ontario"), each = 48), ordered = TRUE,
-                      levels = c("Ontario", "Superior")))
+                       levels = c("Superior", "Ontario")),
+         ice.bin = cut(mean.ice.conc, seq(0, 100, 5)))
+
+spawn.ice.summary <- spawn.ice.all %>% group_by(lake) %>% 
+  summarize(mean.ice = mean(mean.ice.conc),
+            median.ice = median(mean.ice.conc),
+            sd.ice = sd(mean.ice.conc),
+            se.ice = sd.ice/sqrt(n()),
+            quart.25 = quantile(mean.ice.conc, 0.25),
+            quart.75 = quantile(mean.ice.conc, 0.75))
 
 
 #### VISUALIZATION -------------------------------------------------------------------------------
 
-ggplot(spawn.ice.all, aes(x = mean.ice.conc, y = lake, fill = lake, color = lake)) +
-  #geom_density(alpha = 0.2) +
-  #geom_jitter(aes(x = mean.ice.conc)) +
-  geom_density_ridges(alpha = 0.2, point_alpha = 1,  point_shape = 16, point_size = 3,
-                      jittered_points = TRUE, quantile_lines = TRUE, quantiles = 4, 
-                      scale = 0.95, show.legend = FALSE) +
-  scale_fill_manual(values = c("#b2df8a", "#a6cee3")) +
-  scale_color_manual(values = c("#33a02c", "#1f78b4")) +
-  scale_x_continuous(limit = c(0, 100), expand = c(0, 0.75)) +
-  #scale_y_discrete(expand = c(0.05, 0)) +
-  scale_y_discrete(expand = expansion(add = c(0.0, 0.575))) +
-  labs(x = "Mean Ice Concentration (%)") +
+ggplot(spawn.ice.all, aes(x = mean.ice.conc)) +
+  geom_histogram(bins = 21, aes(y = (..count../48)*100), color = "black") +
+  geom_point(data = spawn.ice.summary, aes(x = median.ice, y = 21.35), size = 3, show.legend = FALSE) +
+  geom_errorbarh(data = spawn.ice.summary, 
+                 aes(xmin = quart.25, xmax = quart.75, x = median.ice, y = 21.35), 
+                 height = 0.85, size = 0.8) + 
+  #scale_fill_manual(values = c("#b2df8a", "#a6cee3")) +
+  scale_y_continuous(limits = c(0, 22), expand = c(0, 0)) +
+  scale_x_continuous(limits = c(-2.5, 102.5), breaks = seq(0, 100, 25), expand = c(0, 0.25)) +
+  labs(x = "Mean Ice Concentration (%)", y = "Percent of Occurrence", fill = "") +
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
-        axis.title.y = element_blank(),
+        axis.title.y = element_text(color = "Black", size = 22, margin = margin(0, 10, 0, 0)),
         axis.text.x = element_text(size = 18),
-        axis.text.y = element_text(size = 22),
+        axis.text.y = element_text(size = 18),
         axis.ticks.length = unit(2, 'mm'),
-        legend.position = "none",
-        plot.margin = unit(c(5, 5, 5, 5), 'mm'))
+        strip.background = element_blank(),
+        strip.text = element_text(size = 18),
+        legend.position = "top",
+        legend.text = element_text(size = 15),
+        plot.margin = unit(c(1, 5, 2, 5), 'mm')) +
+  facet_wrap(~lake, ncol = 1)
 
 ggsave("figures/Historical-Ice-CiscoSpawning-Histogram.png", dpi = 300, width = 10, height = 7.5)
-
-
-ggplot(spawn.ice.all, aes(x = mean.ice.conc, group = lake, fill = lake)) +
-  geom_histogram(bins = 30, color = "black") +
-  scale_fill_manual(values = c("#b2df8a", "#a6cee3")) +
-  scale_y_continuous(limits = c(0, 10), expand = c(0, 0)) +
-  scale_x_continuous(expand = c(0, 1)) +
-  labs(x = "Ice Concentration (%)", y = "Frequency", fill = "") +
-  theme_bw() +
-  theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
-        axis.title.y = element_text(color = "Black", size = 22, margin = margin(0, 10, 0, 0)),
-        axis.text.x = element_text(size = 18),
-        axis.text.y = element_text(size = 18),
-        axis.ticks.length = unit(2, 'mm'),
-        legend.position = "top",
-        legend.text = element_text(size = 15),
-        plot.margin = unit(c(5, 5, 5, 5), 'mm'))
-
-
-ggplot(spawn.ice.all, aes(x = mean.ice.conc, group = lake, fill = lake)) +
-  geom_density(alpha = 0.4) +
-  scale_fill_manual(values = c("#b2df8a", "#a6cee3")) +
-  scale_x_continuous(limits = c(0, 100), expand = c(0, 0)) +
-  scale_y_continuous(limits = c(0, 0.026), expand = c(0, 0)) +
-  labs(x = "Mean Ice Concentration (%)", y = "Density", fill = "") +
-  theme_bw() +
-  theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
-        axis.title.y = element_text(color = "Black", size = 22, margin = margin(0, 10, 0, 0)),
-        axis.text.x = element_text(size = 18),
-        axis.text.y = element_text(size = 18),
-        axis.ticks.length = unit(2, 'mm'),
-        legend.position = "top",
-        legend.text = element_text(size = 15),
-        plot.margin = unit(c(5, 5, 5, 5), 'mm'))
 

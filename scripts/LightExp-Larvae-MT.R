@@ -273,11 +273,11 @@ plot.all <- grid.arrange(
     arrangeGrob(plot.tl + theme(legend.position = "none", axis.title.x = element_blank()),
                 plot.yolk + theme(legend.position = "none", axis.title.x = element_blank()),
                 nrow = 2,
-                bottom = textGrob("Light Treatment", x = 0.545, gp = gpar(cex = 2, fontfamily = "Arial"))),
+                bottom = textGrob("Light Treatment", x = 0.545, just = "bottom", gp = gpar(cex = 2, fontfamily = "Arial"))),
     arrangeGrob(plot.tl.stand + theme(legend.position = "none", axis.title.x = element_blank()), 
                 plot.yolk.stand + theme(legend.position = "none", axis.title.x = element_blank()),
                 nrow = 2,
-                bottom = textGrob("Study Group", x = 0.55, gp = gpar(cex = 2, fontfamily = "Arial"))),
+                bottom = textGrob("Study Group", x = 0.55, just = "bottom", gp = gpar(cex = 2, fontfamily = "Arial"))),
     ncol = 2,
     widths = c(1, 0.7)
   ),
