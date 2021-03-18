@@ -26,7 +26,7 @@ larval.lo <- read_excel("data/Coregonine-Light-Experiment-LarvalMeasurements.xls
 # Combine each population, temperature, and species
 larval <- bind_rows(larval.ls, larval.lo) %>% 
   mutate(population = factor(population, levels = c("Superior", "Ontario"), ordered = TRUE),
-         light = factor(light, ordered = TRUE, levels = c("High", "Medium", "Low")),
+         light = factor(light, ordered = TRUE, levels = c("Low", "Medium", "High")),
          female = factor(female, levels = seq(1, 12, 1),
                          labels = c("F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12")),
          male = factor(male, levels = seq(1, 16, 1),
@@ -70,11 +70,15 @@ mixed(larval.tl.glm.formula, data = larval.tl, method = "LRT")
 rand(larval.tl.glm.final)
 
 ## Calculate estimated marginal means - be very patient!
-larval.tl.glm.emm <- emmeans(larval.tl.glm.final, ~ population)
+larval.tl.glm.ontario <- lmer(trans.tl ~ light + (1 | male) + (1 | female), data = filter(larval.tl, population == "Ontario"))
+larval.tl.glm.superior <- lmer(trans.tl ~ light + (1 | male) + (1 | female), data = filter(larval.tl, population == "Superior"))
+
+larval.tl.glm.ontario.emm <- emmeans(larval.tl.glm.ontario, ~ light)
+larval.tl.glm.superior.emm <- emmeans(larval.tl.glm.superior, ~ light)
 
 ## Pairwise
-pairs(larval.tl.glm.emm, simple = list("population"), adjust = "tukey", type = "response") 
-
+pairs(larval.tl.glm.ontario.emm, adjust = "tukey") 
+pairs(larval.tl.glm.superior.emm, adjust = "tukey") 
 
 #### STATISTICAL ANALYSIS - YOLK-SAC VOLUME ------------------------------------------------------
 
@@ -102,16 +106,16 @@ rand(larval.yolk.glm.final)
 #### CALCULATE MEAN AND SE FOR NA & FI POPULATIONS -----------------------------------------------
 
 ## Length-at-Hatch - Overall
-larval.tl.summary <- larval.tl %>% 
+larval.tl.summary <- larval.tl %>%
   group_by(population, light) %>% 
-  summarize(mean.tl = mean(length_mm),
+  dplyr::summarize(mean.tl = mean(length_mm),
             se.tl = sd(length_mm)/sqrt(n()),
             n = n())
 
 ## Length-at-Hatch - Standardized Within Family
 larval.tl.summary.family <- larval %>% filter(!is.na(length_mm), length_mm != 0) %>% 
   group_by(population, light, family) %>% 
-  summarize(mean.tl = mean(length_mm)) %>% ungroup()
+  dplyr::summarize(mean.tl = mean(length_mm)) %>% ungroup()
 
 larval.tl.stand <- larval.tl.summary.family %>% filter(light == "Low") %>% 
   select(population, family, local.tl = mean.tl)
@@ -120,7 +124,7 @@ larval.tl.summary.stand <- larval.tl.summary.family %>% left_join(larval.tl.stan
   mutate(tl.diff = 100*(1+(mean.tl-local.tl)/local.tl)) %>%
   filter(!is.na(tl.diff)) %>% 
   group_by(population, light) %>% 
-  summarize(mean.tl.diff = mean(tl.diff),
+  dplyr::summarize(mean.tl.diff = mean(tl.diff),
             se.tl.diff = sd(tl.diff)/sqrt(n())) %>% 
   mutate(se.tl.diff = ifelse(se.tl.diff == 0, NA, se.tl.diff),
          percent.loss = 100-mean.tl.diff)
@@ -129,14 +133,14 @@ larval.tl.summary.stand <- larval.tl.summary.family %>% left_join(larval.tl.stan
 ## Yolk-sac Volume - Overall
 larval.yolk.summary <- larval.yolk %>% 
   group_by(population, light) %>% 
-  summarize(mean.yolk = mean(y_vol_mm3),
+  dplyr::summarize(mean.yolk = mean(y_vol_mm3),
             se.yolk = sd(y_vol_mm3)/sqrt(n()),
             n = n())
 
 ## Length-at-Hatch - Standardized Within Family
 larval.yolk.summary.family <- larval %>% filter(!is.na(y_vol_mm3), y_vol_mm3 != 0) %>% 
   group_by(population, light, family) %>% 
-  summarize(mean.yolk = mean(y_vol_mm3)) %>% ungroup()
+  dplyr::summarize(mean.yolk = mean(y_vol_mm3)) %>% ungroup()
 
 larval.yolk.stand <- larval.yolk.summary.family %>% filter(light == "Low") %>% 
   select(population, family, local.yolk = mean.yolk)
@@ -145,7 +149,7 @@ larval.yolk.summary.stand <- larval.yolk.summary.family %>% left_join(larval.yol
   mutate(yolk.diff = 100*(1+(mean.yolk-local.yolk)/local.yolk)) %>%
   filter(!is.na(yolk.diff)) %>% 
   group_by(population, light) %>% 
-  summarize(mean.yolk.diff = mean(yolk.diff),
+  dplyr::summarize(mean.yolk.diff = mean(yolk.diff),
             se.yolk.diff = sd(yolk.diff)/sqrt(n())) %>% 
   mutate(se.yolk.diff = ifelse(se.yolk.diff == 0, NA, se.yolk.diff),
          percent.loss = 100-mean.yolk.diff)
@@ -153,21 +157,15 @@ larval.yolk.summary.stand <- larval.yolk.summary.family %>% left_join(larval.yol
 #### VISUALIZATIONS ----------------------------------------------------------
 
 ## Length-at-Hatch
-plot.tl <- ggplot(larval.tl.summary, aes(x = light, y = mean.tl, group = population, color = population, shape = population, linetype = population)) + 
-  geom_line(size = 1.0, position = position_dodge(0)) +
-  geom_point(size = 3.25, position = position_dodge(0)) +
+plot.tl <- ggplot(larval.tl.summary, aes(x = population, y = mean.tl, group = light, color = light)) + 
+  geom_point(size = 5, position = position_dodge(0.6), stroke = 1.5, shape = 1) +
   geom_errorbar(aes(ymin = mean.tl - se.tl, ymax = mean.tl + se.tl), 
-                position = position_dodge(0),
-                size = 0.8, width = 0.1, linetype = "solid", show.legend = FALSE) +
-  scale_x_discrete(labels = c("High", "Medium", "Low"), expand = c(0, 0.1)) +
+                position = position_dodge(0.6),
+                size = 1, width = 0.25, linetype = "solid", show.legend = FALSE) +
   scale_y_continuous(limits = c(9.4, 11), breaks = seq(9.5, 11, 0.5), expand = c(0, 0)) +
-  scale_color_grey("combine", start = 0.0, end = 0.6,
-                   labels = c("Superior   ", "Ontario")) +
-  scale_shape_manual("combine", values = c(1, 2), 
-                     labels = c("Superior   ", "Ontario")) +
-  scale_linetype_manual("combine", values = c("solid", "dashed"), 
-                        labels = c("Superior   ", "Ontario")) +
-  labs(y = "Mean LAH (mm)", x = "Light Treatment") +
+  scale_color_manual("combine", values = c("#0571b0", "#92c5de", "#f4a582"),
+                     labels = c("Low ", "Medium ", "High")) +
+  labs(y = "Mean LAH (mm)", x = "Population") +
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
         axis.title.y = element_text(color = "Black", size = 22, margin = margin(0, 10, 0, 0)),
@@ -176,9 +174,9 @@ plot.tl <- ggplot(larval.tl.summary, aes(x = light, y = mean.tl, group = populat
         axis.ticks.length = unit(2, 'mm'),
         legend.title = element_blank(),
         legend.text = element_text(size = 20),
-        legend.key.size = unit(1.25, 'cm'),
+        legend.key.width = unit(1.25, 'cm'),
         legend.position = "top",
-        plot.margin = unit(c(5, 5, 5, 5), 'mm')) 
+        plot.margin = unit(c(5, 5, 5, 5), 'mm'))
 
 ##
 plot.tl.stand <- ggplot(larval.tl.summary.stand, aes(x = population, y = mean.tl.diff, group = light, fill = light)) + 
@@ -186,10 +184,10 @@ plot.tl.stand <- ggplot(larval.tl.summary.stand, aes(x = population, y = mean.tl
   geom_errorbar(aes(ymin = (mean.tl.diff - se.tl.diff), ymax = (mean.tl.diff + se.tl.diff)), 
                 position = position_dodge(0.9), size = 0.8, width = 0.4, show.legend = FALSE) +
   #scale_x_continuous(limits = c(1.75, 9.15), breaks = c(2, 4, 4.4, 6.9, 8, 8.9), expand = c(0, 0)) +
-  scale_y_continuous(limits = c(0.0, 105), breaks = seq(0.0, 105, 5), expand = c(0, 0)) +
-  scale_fill_manual(values = c("#f4a582", "#92c5de", "#0571b0"),
-                    labels = c("High  ", "Medium  ", "Low")) +
-  coord_cartesian(ylim = c(80, 105)) +
+  scale_y_continuous(limits = c(0.0, 130), breaks = seq(0.0, 130, 10), expand = c(0, 0)) +
+  scale_fill_manual(values = c("#0571b0", "#92c5de", "#f4a582"),
+                    labels = c("Low  ", "Medium  ", "High")) +
+  coord_cartesian(ylim = c(80, 120)) +
   labs(y = "Standardized LAH (%)", x = "Population") +
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
@@ -204,21 +202,15 @@ plot.tl.stand <- ggplot(larval.tl.summary.stand, aes(x = population, y = mean.tl
         plot.margin = unit(c(5, 5, 5, 5), 'mm')) 
 
 ## Yolk-sac Volume
-plot.yolk <- ggplot(larval.yolk.summary, aes(x = light, y = mean.yolk, group = population, color = population, shape = population, linetype = population)) + 
-  geom_line(size = 1.0, position = position_dodge(0)) +
-  geom_point(size = 3.25, position = position_dodge(0)) +
+plot.yolk <- ggplot(larval.yolk.summary, aes(x = population, y = mean.yolk, group = light, color = light)) + 
+  geom_point(size = 5, position = position_dodge(0.6), stroke = 1.5, shape = 1) +
   geom_errorbar(aes(ymin = mean.yolk - se.yolk, ymax = mean.yolk + se.yolk), 
-                position = position_dodge(0),
-                size = 0.8, width = 0.1, linetype = "solid", show.legend = FALSE) +
-  scale_x_discrete(labels = c("High", "Medium", "Low"), expand = c(0, 0.1)) +
+                position = position_dodge(0.6),
+                size = 1, width = 0.25, linetype = "solid", show.legend = FALSE) +
   scale_y_continuous(limits = c(0.3, 0.7), breaks = seq(0.3, 0.7, 0.1), expand = c(0, 0)) +
-  scale_color_grey("combine", start = 0.0, end = 0.6,
-                   labels = c("Superior   ", "Ontario")) +
-  scale_shape_manual("combine", values = c(1, 2), 
-                     labels = c("Superior   ", "Ontario")) +
-  scale_linetype_manual("combine", values = c("solid", "dashed"), 
-                        labels = c("Superior   ", "Ontario")) +
-  labs(y = expression("Mean YSV (mm"^3*")"), x = "Light Treatment") +
+  scale_color_manual("combine", values = c("#0571b0", "#92c5de", "#f4a582"),
+                     labels = c("Low ", "Medium ", "High")) +
+  labs(y = expression("Mean YSV (mm"^3*")"), x = "Population") +
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
         axis.title.y = element_text(color = "Black", size = 22, margin = margin(0, 10, 0, 0)),
@@ -227,9 +219,9 @@ plot.yolk <- ggplot(larval.yolk.summary, aes(x = light, y = mean.yolk, group = p
         axis.ticks.length = unit(2, 'mm'),
         legend.title = element_blank(),
         legend.text = element_text(size = 20),
-        legend.key.size = unit(1.25, 'cm'),
+        legend.key.width = unit(1.25, 'cm'),
         legend.position = "top",
-        plot.margin = unit(c(5, 5, 5, 5), 'mm')) 
+        plot.margin = unit(c(5, 5, 5, 5), 'mm'))
 
 ## 
 plot.yolk.stand <- ggplot(larval.yolk.summary.stand, aes(x = population, y = mean.yolk.diff, group = light, fill = light)) + 
@@ -237,10 +229,10 @@ plot.yolk.stand <- ggplot(larval.yolk.summary.stand, aes(x = population, y = mea
   geom_errorbar(aes(ymin = (mean.yolk.diff - se.yolk.diff), ymax = (mean.yolk.diff + se.yolk.diff)), 
                 position = position_dodge(0.9), size = 0.8, width = 0.4, show.legend = FALSE) +
   #scale_x_continuous(limits = c(1.75, 9.15), breaks = c(2, 4, 4.4, 6.9, 8, 8.9), expand = c(0, 0)) +
-  scale_y_continuous(limits = c(0.0, 125), breaks = seq(0.0, 120, 10), expand = c(0, 0)) +
-  scale_fill_manual(values = c("#f4a582", "#92c5de", "#0571b0"),
-                    labels = c("High  ", "Medium  ", "Low")) +
-  coord_cartesian(ylim = c(80, 125)) +
+  scale_y_continuous(limits = c(0.0, 130), breaks = seq(0.0, 130, 10), expand = c(0, 0)) +
+  scale_fill_manual(values = c("#0571b0", "#92c5de", "#f4a582"),
+                    labels = c("Low  ", "Medium  ", "High")) +
+  coord_cartesian(ylim = c(80, 120)) +
   labs(y = "Standardized YSV (%)", x = "Population") +
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
@@ -257,31 +249,19 @@ plot.yolk.stand <- ggplot(larval.yolk.summary.stand, aes(x = population, y = mea
 
 ## Combine all figures
 plot.all <- grid.arrange(
-  arrangeGrob(
-    arrangeGrob(textGrob(""),
-                get_legend(plot.tl),
-                nrow = 1,
-                widths = c(0.09, 1)),
-    arrangeGrob(textGrob(""),
-                get_legend(plot.tl.stand),
-                nrow = 1,
-                widths = c(0.09, 1)),
-    ncol = 2,
-    widths = c(1, 0.7)
-  ),
+  arrangeGrob(get_legend(plot.tl.stand)),
   arrangeGrob(
     arrangeGrob(plot.tl + theme(legend.position = "none", axis.title.x = element_blank()),
                 plot.yolk + theme(legend.position = "none", axis.title.x = element_blank()),
-                nrow = 2,
-                bottom = textGrob("Light Treatment", x = 0.545, just = "bottom", gp = gpar(cex = 2, fontfamily = "Arial"))),
+                nrow = 2),
     arrangeGrob(plot.tl.stand + theme(legend.position = "none", axis.title.x = element_blank()), 
                 plot.yolk.stand + theme(legend.position = "none", axis.title.x = element_blank()),
-                nrow = 2,
-                bottom = textGrob("Study Group", x = 0.55, just = "bottom", gp = gpar(cex = 2, fontfamily = "Arial"))),
+                nrow = 2),
     ncol = 2,
-    widths = c(1, 0.7)
+    widths = c(0.5, 0.7)
   ),
-  heights = c(0.04, 1.1)
+  arrangeGrob(textGrob("Population", x = 0.5, just = "bottom", gp = gpar(cex = 2, fontfamily = "Arial"))),
+  heights = c(0.045, 1.0, 0.035)
 )
 
-ggsave("figures/2020-Light-Larval-MT-SE.png", plot = plot.all, width = 18, height = 14, dpi = 300)
+ggsave("figures/2020-Light-Larval-MT-SE-2.png", plot = plot.all, width = 10, height = 12, dpi = 300)

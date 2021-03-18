@@ -102,18 +102,31 @@ ggplot(ice.light.tidy, aes(x = timestamp, y = value, group = measurement)) +
   scale_y_continuous(limits = c(0, 100), breaks = seq(10, 100, 10), expand = c(0, 0)) +
   scale_color_manual(values = c("#0091e6", "gray50"), labels = c("Ice", "Light")) +
   labs(y = expression(paste("Ice Coverage (%)\n\nLight Intensity (μmol ", m^-2, " ", s^-1, ")", sep="")), x = "") +
-  theme_bw() +
-  theme(panel.grid = element_blank(), 
+  theme_minimal() +
+  theme(panel.grid.major = element_line(),
+        panel.grid.minor = element_line(),
+        axis.line = element_line(),
         axis.text = element_text(size = 25),
         axis.title = element_text(size = 25), 
+        axis.ticks = element_line(),
         axis.ticks.length = unit(2, 'mm'),
-        legend.position = c(0.08, 0.92), 
+        legend.position = c(0.093, 0.93), 
         legend.text = element_text(size = 20),
         legend.title = element_blank(), 
         legend.key.width = unit(2.5, 'lines'), 
         legend.key.height = unit(1.5, 'lines'),
-        legend.key = element_rect(fill = "white"), 
+        legend.key = element_rect(fill = "transparent", color = "transparent"), 
         plot.margin = unit(c(5, 20, 0, 20), "mm"))
 
-ggsave("figures/2017-Ice-Light.png", dpi = 300, width = 15, height = 7.5)
+ggsave("figures/2017-Ice-Light-2.png", dpi = 300, width = 14, height = 7.5)
 
+
+ice.light.noTidy <- light.filt %>% group_by(ice.year, date) %>% 
+  summarize(light  = max(light)) %>% 
+  left_join(ice.full) %>% 
+  mutate(ice.conc = replace_na(ice.conc, 0))
+  
+
+ggplot(ice.light.noTidy, aes(x = ice.conc, y = light)) + 
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE)

@@ -140,27 +140,32 @@ spawn.ice.summary <- spawn.ice.all %>% group_by(lake) %>%
 #### VISUALIZATION -------------------------------------------------------------------------------
 
 ggplot(spawn.ice.all, aes(x = mean.ice.conc)) +
-  geom_histogram(bins = 21, aes(y = (..count../48)*100), color = "black") +
-  geom_point(data = spawn.ice.summary, aes(x = median.ice, y = 21.35), size = 3, show.legend = FALSE) +
-  geom_errorbarh(data = spawn.ice.summary, 
-                 aes(xmin = quart.25, xmax = quart.75, x = median.ice, y = 21.35), 
-                 height = 0.85, size = 0.8) + 
+  geom_histogram(binwidth = 5, aes(y = (..count../48)*100), color = "black") +
+  #geom_point(data = spawn.ice.summary, aes(x = median.ice, y = 19.5), size = 3, show.legend = FALSE) +
+  #geom_errorbarh(data = spawn.ice.summary, 
+  #               aes(xmin = quart.25, xmax = quart.75, x = median.ice, y = 19.5), 
+  #               height = 0.85, size = 0.8) + 
   #scale_fill_manual(values = c("#b2df8a", "#a6cee3")) +
-  scale_y_continuous(limits = c(0, 22), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0, 20), expand = c(0, 0)) +
   scale_x_continuous(limits = c(-2.5, 102.5), breaks = seq(0, 100, 25), expand = c(0, 0.25)) +
-  labs(x = "Mean Ice Concentration (%)", y = "Percent of Occurrence", fill = "") +
-  theme_bw() +
-  theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
+  labs(x = "Mean Ice Coverage (%)", y = "Percent of Occurrence", fill = "") +
+  theme_minimal() +
+  theme(panel.grid.major = element_line(),
+        panel.grid.minor = element_line(),
+        axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
         axis.title.y = element_text(color = "Black", size = 22, margin = margin(0, 10, 0, 0)),
         axis.text.x = element_text(size = 18),
         axis.text.y = element_text(size = 18),
+        axis.ticks = element_line(),
         axis.ticks.length = unit(2, 'mm'),
         strip.background = element_blank(),
         strip.text = element_text(size = 18),
         legend.position = "top",
         legend.text = element_text(size = 15),
         plot.margin = unit(c(1, 5, 2, 5), 'mm')) +
-  facet_wrap(~lake, ncol = 1)
+  facet_wrap(~lake, ncol = 1) +
+ annotate("segment", x = -Inf, xend = Inf, y = -Inf, yend = -Inf, size = 1) +
+ annotate("segment", x = -Inf, xend = -Inf, y = -Inf, yend = Inf, size = 1)
 
-ggsave("figures/Historical-Ice-CiscoSpawning-Histogram.png", dpi = 300, width = 10, height = 7.5)
+ggsave("figures/presentation/Historical-Ice-CiscoSpawning-Histogram.png", dpi = 300, width = 10, height = 7.5)
 

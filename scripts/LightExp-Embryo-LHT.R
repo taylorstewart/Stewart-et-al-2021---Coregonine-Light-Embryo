@@ -36,7 +36,7 @@ hatch <- read_excel("data/Coregonine-Light-Experiment-Hatch.xlsx", sheet = "2020
   left_join(ADD) %>% 
   dplyr::select(population, light, male, female, block, no, eye, hatch, dpf, ADD, include.survival, include.incubation) %>% 
   mutate(population = factor(population, levels = c("Superior", "Ontario"), ordered = TRUE),
-         light = factor(light, ordered = TRUE, levels = c("High", "Medium", "Low")),
+         light = factor(light, ordered = TRUE, levels = c("Low", "Medium", "High")),
          female = factor(female, levels = seq(1, 12, 1),
                          labels = c("F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12")),
          male = factor(male, levels = seq(1, 16, 1),
@@ -78,10 +78,15 @@ hatch.survival.glm.final <- glm(hatch.survival.glm.formula, data = hatch.surviva
 Anova(hatch.survival.glm.final, method = "LRT", type = "III")
 
 ## Calculate estimated marginal means - be very patient!
-hatch.survival.glm.emm <- emmeans(hatch.survival.glm.final, ~ light | population)
+hatch.survival.glm.ontario <- glm(hatch ~ 1 + light, data = filter(hatch.survival, population == "Ontario"))
+hatch.survival.glm.superior <- glm(hatch ~ 1 + light, data = filter(hatch.survival, population == "Superior"))
+
+hatch.survival.glm.ontario.emm <- emmeans(hatch.survival.glm.ontario, ~ light)
+hatch.survival.glm.superior.emm <- emmeans(hatch.survival.glm.superior, ~ light)
 
 ## Pairwise
-pairs(hatch.survival.glm.emm, simple = list("light", "population"), type = "response") 
+pairs(hatch.survival.glm.ontario.emm, adjust = "tukey") 
+pairs(hatch.survival.glm.superior.emm, adjust = "tukey") 
 
 
 #### STATISTICAL ANALYSIS - INCUBATION PERIOD (DPF) --------------------------
@@ -204,21 +209,15 @@ hatch.ADD.summary.stand <- hatch.ADD.summary.family %>% left_join(hatch.ADD.stan
 #### VISUALIZATIONS - MEANS ----------------------------------------------------------------------
 
 ## Embryo Survival
-plot.survival <- ggplot(hatch.survival.summary, aes(x = light, y = (mean.hatch * 100), group = population, color = population, shape = population, linetype = population)) + 
-  geom_line(size = 1.0, position = position_dodge(0.13)) +
-  geom_point(size = 5, position = position_dodge(0.13)) +
+plot.survival <- ggplot(hatch.survival.summary, aes(x = population, y = (mean.hatch*100), group = light, color = light)) + 
+  geom_point(size = 5, position = position_dodge(0.6), stroke = 1.5, shape = 1) +
   geom_errorbar(aes(ymin = (mean.hatch - se.hatch) * 100, ymax = (mean.hatch + se.hatch) * 100), 
-                position = position_dodge(0.13),
-                size = 0.8, width = 0.1, linetype = "solid", show.legend = FALSE) +
-  scale_x_discrete(labels = c("High", "Medium", "Low"), expand = c(0, 0.1)) +
+                position = position_dodge(0.6),
+                size = 1, width = 0.25, linetype = "solid", show.legend = FALSE) +
   scale_y_continuous(limits = c(80, 101), breaks = seq(80, 100, 5), expand = c(0, 0)) +
-  scale_color_grey("combine", start = 0.0, end = 0.6,
-                   labels = c("Superior   ", "Ontario")) +
-  scale_shape_manual("combine", values = c(1, 2), 
-                     labels = c("Superior   ", "Ontario")) +
-  scale_linetype_manual("combine", values = c("solid", "dashed"), 
-                        labels = c("Superior   ", "Ontario")) +
-  labs(y = "Mean Embryo Survival (%)") +
+  scale_color_manual("combine", values = c("#0571b0", "#92c5de", "#f4a582"),
+                     labels = c("Low ", "Medium ", "High")) +
+  labs(y = "Mean Embryo Survival (%)", x = "Population") +
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
         axis.title.y = element_text(color = "Black", size = 22, margin = margin(0, 10, 0, 0)),
@@ -237,9 +236,9 @@ plot.survival.stand <- ggplot(hatch.survival.summary.stand, aes(x = population, 
   geom_errorbar(aes(ymin = (mean.survival.diff - se.survival.diff), ymax = (mean.survival.diff + se.survival.diff)), 
                 position = position_dodge(0.9), size = 0.8, width = 0.4, show.legend = FALSE) +
   scale_y_continuous(limits = c(0.0, 130), breaks = seq(0.0, 130, 10), expand = c(0, 0)) +
-  scale_fill_manual(values = c("#f4a582", "#92c5de", "#0571b0"),
-                    labels = c("High  ", "Medium  ", "Low")) +
-  coord_cartesian(ylim = c(80, 130)) +
+  scale_fill_manual(values = c("#0571b0", "#92c5de", "#f4a582"),
+                    labels = c("Low  ", "Medium  ", "High")) +
+  coord_cartesian(ylim = c(80, 120)) +
   labs(y = "Standardized Survival (%)", x = "Population") +
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
@@ -254,21 +253,15 @@ plot.survival.stand <- ggplot(hatch.survival.summary.stand, aes(x = population, 
         plot.margin = unit(c(5, 5, 5, 5), 'mm')) 
 
 ## Days Post Fertilization
-plot.dpf <- ggplot(hatch.dpf.summary, aes(x = light, y = mean.dpf, group = population, color = population, shape = population, linetype = population)) + 
-  geom_line(size = 1.0, position = position_dodge(0.13)) +
-  geom_point(size = 5, position = position_dodge(0.13)) +
+plot.dpf <- ggplot(hatch.dpf.summary, aes(x = population, y = mean.dpf, group = light, color = light)) + 
+  geom_point(size = 5, position = position_dodge(0.6), stroke = 1.5, shape = 1) +
   geom_errorbar(aes(ymin = mean.dpf - se.dpf, ymax = mean.dpf + se.dpf), 
-                position = position_dodge(0.13),
-                size = 0.8, width = 0.1, linetype = "solid", show.legend = FALSE) +
-  scale_x_discrete(labels = c("High", "Medium", "Low"), expand = c(0, 0.1)) +
+                position = position_dodge(0.6),
+                size = 1, width = 0.25, linetype = "solid", show.legend = FALSE) +
   scale_y_continuous(limits = c(95, 120), breaks = seq(95, 130, 5), expand = c(0, 0)) +
-  scale_color_grey("combine", start = 0.0, end = 0.6,
-                   labels = c("Superior   ", "Ontario")) +
-  scale_shape_manual("combine", values = c(1, 2), 
-                     labels = c("Superior   ", "Ontario")) +
-  scale_linetype_manual("combine", values = c("solid", "dashed"), 
-                        labels = c("Superior   ", "Ontario")) +
-  labs(y = "Mean DPF") +
+  scale_color_manual("combine", values = c("#0571b0", "#92c5de", "#f4a582"),
+                     labels = c("Low ", "Medium ", "High")) +
+  labs(y = "Mean DPF", x = "Population") +
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
         axis.title.y = element_text(color = "Black", size = 22, margin = margin(0, 10, 0, 0)),
@@ -287,10 +280,10 @@ plot.dpf.stand <- ggplot(hatch.dpf.summary.stand, aes(x = population, y = mean.d
   geom_errorbar(aes(ymin = (mean.dpf.diff - se.dpf.diff), ymax = (mean.dpf.diff + se.dpf.diff)), 
                 position = position_dodge(0.9), size = 0.8, width = 0.4, show.legend = FALSE) +
   #scale_x_continuous(limits = c(1.75, 9.15), breaks = c(2, 4, 4.4, 6.9, 8, 8.9), expand = c(0, 0)) +
-  scale_y_continuous(limits = c(0.0, 110), breaks = seq(0.0, 110, 10), expand = c(0, 0)) +
-  scale_fill_manual(values = c("#f4a582", "#92c5de", "#0571b0"),
-                    labels = c("High  ", "Medium  ", "Low")) +
-  coord_cartesian(ylim = c(80, 110)) +
+  scale_y_continuous(limits = c(0.0, 130), breaks = seq(0.0, 130, 10), expand = c(0, 0)) +
+  scale_fill_manual(values = c("#0571b0", "#92c5de", "#f4a582"),
+                    labels = c("Low  ", "Medium  ", "High")) +
+  coord_cartesian(ylim = c(80, 120)) +
   labs(y = "Standardized DPF (%)", x = "Population") +
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
@@ -305,21 +298,15 @@ plot.dpf.stand <- ggplot(hatch.dpf.summary.stand, aes(x = population, y = mean.d
         plot.margin = unit(c(5, 5, 5, 5), 'mm')) 
 
 ## Accumulated Degree-Days
-plot.ADD <- ggplot(hatch.ADD.summary, aes(x = light, y = mean.ADD, group = population, color = population, shape = population, linetype = population)) + 
-  geom_line(size = 1.0, position = position_dodge(0.13)) +
-  geom_point(size = 5, position = position_dodge(0.13)) +
+plot.ADD <- ggplot(hatch.ADD.summary, aes(x = population, y = mean.ADD, group = light, color = light)) + 
+  geom_point(size = 5, position = position_dodge(0.6), stroke = 1.5, shape = 1) +
   geom_errorbar(aes(ymin = mean.ADD - se.ADD, ymax = mean.ADD + se.ADD), 
-                position = position_dodge(0.13),
-                size = 0.8, width = 0.1, linetype = "solid", show.legend = FALSE) +
-  scale_x_discrete(labels = c("High", "Medium", "Low"), expand = c(0, 0.1)) +
-  scale_y_continuous(limits = c(400, 515), breaks = seq(350, 550, 25), expand = c(0, 0)) +
-  scale_color_grey("combine", start = 0.0, end = 0.6,
-                   labels = c("Superior   ", "Ontario")) +
-  scale_shape_manual("combine", values = c(1, 2), 
-                     labels = c("Superior   ", "Ontario")) +
-  scale_linetype_manual("combine", values = c("solid", "dashed"), 
-                        labels = c("Superior   ", "Ontario")) +
-  labs(y = "Mean ADD (°C)") +
+                position = position_dodge(0.6),
+                size = 1, width = 0.25, linetype = "solid", show.legend = FALSE) +
+  scale_y_continuous(limits = c(400, 505), breaks = seq(350, 500, 25), expand = c(0, 0)) +
+  scale_color_manual("combine", values = c("#0571b0", "#92c5de", "#f4a582"),
+                     labels = c("Low ", "Medium ", "High")) +
+  labs(y = "Mean ADD (°C)", x = "Population") +
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
         axis.title.y = element_text(color = "Black", size = 22, margin = margin(0, 10, 0, 0)),
@@ -337,10 +324,10 @@ plot.ADD.stand <- ggplot(hatch.ADD.summary.stand, aes(x = population, y = mean.A
   geom_bar(stat = "identity", size = 0.5, position = position_dodge(0.9), color = "black") +
   geom_errorbar(aes(ymin = (mean.ADD.diff - se.ADD.diff), ymax = (mean.ADD.diff + se.ADD.diff)), 
                 position = position_dodge(0.9), size = 0.8, width = 0.4, show.legend = FALSE) +
-  scale_y_continuous(limits = c(0.0, 110), breaks = seq(0.0, 110, 10), expand = c(0, 0)) +
-  scale_fill_manual(values = c("#f4a582", "#92c5de", "#0571b0"),
-                    labels = c("High  ", "Medium  ", "Low")) +
-  coord_cartesian(ylim = c(80, 110)) +
+  scale_y_continuous(limits = c(0.0, 130), breaks = seq(0.0, 130, 10), expand = c(0, 0)) +
+  scale_fill_manual(values = c("#0571b0", "#92c5de", "#f4a582"),
+                     labels = c("Low  ", "Medium  ", "High")) +
+  coord_cartesian(ylim = c(80, 120)) +
   labs(y = "Standardized ADD (%)", x = "Population") +
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
@@ -354,36 +341,25 @@ plot.ADD.stand <- ggplot(hatch.ADD.summary.stand, aes(x = population, y = mean.A
         legend.position = "top",
         plot.margin = unit(c(5, 5, 5, 5), 'mm')) 
 
+
 ## Combine all figures
 plot.all <- grid.arrange(
-  arrangeGrob(
-    arrangeGrob(textGrob(""),
-                get_legend(plot.survival),
-                nrow = 1,
-                widths = c(0.09, 1)),
-    arrangeGrob(textGrob(""),
-                get_legend(plot.survival.stand),
-                nrow = 1,
-                widths = c(0.09, 1)),
-    ncol = 2,
-    widths = c(1, 0.7)
-  ),
+  arrangeGrob(get_legend(plot.survival.stand)),
   arrangeGrob(
     arrangeGrob(plot.survival + theme(legend.position = "none", axis.title.x = element_blank()),
                 plot.dpf + theme(legend.position = "none", axis.title.x = element_blank()),
                 plot.ADD + theme(legend.position = "none", axis.title.x = element_blank()),
-                nrow = 3,
-                bottom = textGrob("Light Treatment", x = 0.545, just = "bottom", gp = gpar(cex = 2, fontfamily = "Arial"))),
+                nrow = 3),
     arrangeGrob(plot.survival.stand + theme(legend.position = "none", axis.title.x = element_blank()), 
                 plot.dpf.stand + theme(legend.position = "none", axis.title.x = element_blank()),
                 plot.ADD.stand + theme(legend.position = "none", axis.title.x = element_blank()),
-                nrow = 3,
-                bottom = textGrob("Population", x = 0.55, just = "bottom", gp = gpar(cex = 2, fontfamily = "Arial"))),
-    ncol = 2,
-    widths = c(1, 0.7)
+                nrow = 3),
+  ncol = 2,
+  widths = c(0.5, 0.7)
   ),
-  heights = c(0.035, 1.1)
+  arrangeGrob(textGrob("Population", x = 0.5, just = "bottom", gp = gpar(cex = 2, fontfamily = "Arial"))),
+  heights = c(0.035, 1.0, 0.035)
 )
 
-ggsave("figures/2020-Light-Embryo-LHT-SE.png", plot = plot.all, width = 18, height = 18, dpi = 200)
+ggsave("figures/2020-Light-Embryo-LHT-SE-2.png", plot = plot.all, width = 10, height = 16, dpi = 200)
 
