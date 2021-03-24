@@ -118,7 +118,7 @@ ggplot(ice.light.tidy, aes(x = timestamp, y = value, group = measurement)) +
         legend.key = element_rect(fill = "transparent", color = "transparent"), 
         plot.margin = unit(c(5, 20, 0, 20), "mm"))
 
-ggsave("figures/2017-Ice-Light-2.png", dpi = 300, width = 14, height = 7.5)
+ggsave("figures/Fig2.jpeg", dpi = 300, width = 14, height = 7.5)
 
 
 ice.light.noTidy <- light.filt %>% group_by(ice.year, date) %>% 

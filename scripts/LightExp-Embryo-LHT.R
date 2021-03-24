@@ -361,5 +361,5 @@ plot.all <- grid.arrange(
   heights = c(0.035, 1.0, 0.035)
 )
 
-ggsave("figures/2020-Light-Embryo-LHT-SE-2.png", plot = plot.all, width = 10, height = 16, dpi = 200)
+ggsave("figures/Fig3.jpeg", plot = plot.all, width = 10, height = 16, dpi = 300)
 

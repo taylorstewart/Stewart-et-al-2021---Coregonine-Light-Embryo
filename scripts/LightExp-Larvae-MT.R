@@ -264,4 +264,4 @@ plot.all <- grid.arrange(
   heights = c(0.045, 1.0, 0.035)
 )
 
-ggsave("figures/2020-Light-Larval-MT-SE-2.png", plot = plot.all, width = 10, height = 12, dpi = 300)
+ggsave("figures/Fig4.jpeg", plot = plot.all, width = 10, height = 12, dpi = 300)

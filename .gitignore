@@ -42,6 +42,7 @@ vignettes/*.pdf
 data/.DS_Store
 data/HOBO/.DS_Store
 LS-Bathy-Mark/
+figures/JGLR/
 
 # Ignore files too large to push
 data/PhenoVar_Bootstrap/

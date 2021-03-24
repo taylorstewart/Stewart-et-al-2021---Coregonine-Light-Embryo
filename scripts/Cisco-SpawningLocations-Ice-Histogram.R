@@ -167,5 +167,5 @@ ggplot(spawn.ice.all, aes(x = mean.ice.conc)) +
  annotate("segment", x = -Inf, xend = Inf, y = -Inf, yend = -Inf, size = 1) +
  annotate("segment", x = -Inf, xend = -Inf, y = -Inf, yend = Inf, size = 1)
 
-ggsave("figures/presentation/Historical-Ice-CiscoSpawning-Histogram.png", dpi = 300, width = 10, height = 7.5)
+ggsave("figures/Fig1.jpeg", dpi = 300, width = 10, height = 7.5)
 
