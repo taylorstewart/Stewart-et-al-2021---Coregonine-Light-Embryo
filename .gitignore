@@ -46,3 +46,4 @@ figures/JGLR/
 
 # Ignore files too large to push
 data/PhenoVar_Bootstrap/
+.DS_Store
