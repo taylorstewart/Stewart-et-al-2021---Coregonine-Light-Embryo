@@ -15,8 +15,8 @@ library(cowplot)
 
 #### LOAD LARVAL LENGTH DATA ---------------------------------------------------------------------
 
-larval.ls <- read_excel("data/Coregonine-Light-Experiment-LarvalMeasurements.xlsx", sheet = "Superior")
-larval.lo <- read_excel("data/Coregonine-Light-Experiment-LarvalMeasurements.xlsx", sheet = "Ontario")
+larval.ls <- read_excel("data/Coregonine-Light-Experiment-LarvalMeasurements.xlsx", sheet = "Superior", skip = 52)
+larval.lo <- read_excel("data/Coregonine-Light-Experiment-LarvalMeasurements.xlsx", sheet = "Ontario", skip = 52)
 
 # Combine each population, temperature, and species
 larval <- bind_rows(larval.ls, larval.lo) %>% 
@@ -34,9 +34,9 @@ larval <- bind_rows(larval.ls, larval.lo) %>%
 #### FILTER TO EACH TRAITS' DATASET --------------------------------------------------------------
 
 larval.tl <- larval %>% filter(!is.na(length_mm), length_mm != 0) %>% droplevels() %>% 
-  filter(include.tl == "y")
+  filter(include_tl == "y")
 larval.yolk <- larval %>% filter(!is.na(y_vol_mm3), y_vol_mm3 != 0) %>% droplevels() %>% 
-  filter(include.yolk == "y")
+  filter(include_yolk == "y")
 
 ## Clean up environment
 #rm(larval.lo, larval.ls)

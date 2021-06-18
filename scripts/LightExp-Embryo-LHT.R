@@ -17,7 +17,7 @@ library(egg)
 
 #### LOAD INCUBATION TEMPERATURE DATA ----------------------------------------
 
-ADD <- read.csv("data/Artedi-Light-ADD-2020.csv", header = TRUE) %>% 
+ADD <- read_excel("data/Coregonine-Light-Experiment-Hatch.xlsx", sheet = "temperature", skip = 31) %>% 
   dplyr::select(population, light, ADD) %>% 
   group_by(population, light) %>% 
   mutate(dpf = 1:n())
@@ -25,12 +25,13 @@ ADD <- read.csv("data/Artedi-Light-ADD-2020.csv", header = TRUE) %>%
 
 #### LOAD HATCHING DATA ------------------------------------------------------
 
-hatch <- read_excel("data/Coregonine-Light-Experiment-Hatch.xlsx", sheet = "2020HatchingData") %>% 
+hatch <- read_excel("data/Coregonine-Light-Experiment-Hatch.xlsx", sheet = "hatching", skip = 48) %>% 
+  filter(is.na(notes) | notes != "Empty Well") %>% 
   filter(block != "A" | population != "superior") %>% 
   mutate(eye = as.numeric(eye),
          hatch = as.numeric(hatch)) %>% 
   left_join(ADD) %>% 
-  dplyr::select(population, light, male, female, block, no, eye, hatch, dpf, ADD, include.survival, include.incubation) %>% 
+  dplyr::select(population, light, male, female, block, egg_id, eye, hatch, dpf, ADD, include_survival, include_incubation) %>% 
   mutate(population = factor(population, levels = c("Superior", "Ontario"), ordered = TRUE),
          light = factor(light, ordered = TRUE, levels = c("Low", "Medium", "High")),
          female = factor(female, levels = seq(1, 12, 1),
@@ -47,15 +48,15 @@ hatch <- read_excel("data/Coregonine-Light-Experiment-Hatch.xlsx", sheet = "2020
 
 ## filter to only eyed embryos
 hatch.survival <- hatch %>% filter(eye != 0) %>% droplevels() %>% 
-  filter(include.survival == "y")
+  filter(include_survival == "y")
 
 ## filter to only hatched embryos
 hatch.dpf <- hatch %>% filter(!is.na(dpf), hatch == 1) %>% droplevels() %>% 
-  filter(include.incubation == "y")
+  filter(include_incubation == "y")
 
 ## filter to only hatched embryos
 hatch.ADD <- hatch %>% filter(!is.na(ADD), hatch == 1) %>% droplevels() %>% 
-  filter(include.incubation == "y")
+  filter(include_incubation == "y")
 
 
 #### STATISTICAL ANALYSIS - SURVIVAL -----------------------------------------
