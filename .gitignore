@@ -5,8 +5,6 @@
 # Session Data files
 .RData
 
-figures/Annual_Ice_Spawning/
-
 # User-specific files
 .Ruserdata
 
@@ -42,9 +40,12 @@ vignettes/*.pdf
 
 .DS_Store
 data/.DS_Store
-data/HOBO/.DS_Store
+data/HOBO/
+data/Datasheet_Scans
+data/Lake_Superior_Ice_Light/
+data/DEFI-L/
 LS-Bathy-Mark/
-figures/JGLR/
+figures/Annual_Ice_Spawning/
 
 # Ignore files too large to push
 data/PhenoVar_Bootstrap/
