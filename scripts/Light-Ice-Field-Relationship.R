@@ -102,13 +102,9 @@ ggplot(ice.light.tidy, aes(x = timestamp, y = value, group = measurement)) +
   scale_y_continuous(limits = c(0, 100), breaks = seq(10, 100, 10), expand = c(0, 0)) +
   scale_color_manual(values = c("#0091e6", "gray50"), labels = c("Ice", "Light")) +
   labs(y = expression(paste("Ice Coverage (%)\n\nLight Intensity (μmol ", m^-2, " ", s^-1, ")", sep="")), x = "") +
-  theme_minimal() +
-  theme(panel.grid.major = element_line(),
-        panel.grid.minor = element_line(),
-        axis.line = element_line(),
-        axis.text = element_text(size = 25),
+  theme_bw() +
+  theme(axis.text = element_text(size = 25),
         axis.title = element_text(size = 25), 
-        axis.ticks = element_line(),
         axis.ticks.length = unit(2, 'mm'),
         legend.position = c(0.093, 0.93), 
         legend.text = element_text(size = 20),
@@ -118,7 +114,7 @@ ggplot(ice.light.tidy, aes(x = timestamp, y = value, group = measurement)) +
         legend.key = element_rect(fill = "transparent", color = "transparent"), 
         plot.margin = unit(c(5, 20, 0, 20), "mm"))
 
-ggsave("figures/Fig2.jpeg", dpi = 300, width = 14, height = 7.5)
+ggsave("figures/Fig2.tiff", dpi = 300, width = 14, height = 7.5)
 
 
 ice.light.noTidy <- light.filt %>% group_by(ice.year, date) %>% 

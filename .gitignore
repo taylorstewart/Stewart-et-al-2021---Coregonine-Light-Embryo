@@ -5,6 +5,8 @@
 # Session Data files
 .RData
 
+figures/Annual_Ice_Spawning/
+
 # User-specific files
 .Ruserdata
 

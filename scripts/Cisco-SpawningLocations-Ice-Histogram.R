@@ -149,23 +149,18 @@ ggplot(spawn.ice.all, aes(x = mean.ice.conc)) +
   scale_y_continuous(limits = c(0, 20), expand = c(0, 0)) +
   scale_x_continuous(limits = c(-2.5, 102.5), breaks = seq(0, 100, 25), expand = c(0, 0.25)) +
   labs(x = "Mean Ice Coverage (%)", y = "Percent of Occurrence", fill = "") +
-  theme_minimal() +
-  theme(panel.grid.major = element_line(),
-        panel.grid.minor = element_line(),
-        axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
+  theme_bw() +
+  theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
         axis.title.y = element_text(color = "Black", size = 22, margin = margin(0, 10, 0, 0)),
         axis.text.x = element_text(size = 18),
         axis.text.y = element_text(size = 18),
-        axis.ticks = element_line(),
         axis.ticks.length = unit(2, 'mm'),
         strip.background = element_blank(),
         strip.text = element_text(size = 18),
         legend.position = "top",
         legend.text = element_text(size = 15),
         plot.margin = unit(c(1, 5, 2, 5), 'mm')) +
-  facet_wrap(~lake, ncol = 1) +
- annotate("segment", x = -Inf, xend = Inf, y = -Inf, yend = -Inf, size = 1) +
- annotate("segment", x = -Inf, xend = -Inf, y = -Inf, yend = Inf, size = 1)
+  facet_wrap(~lake, ncol = 1)
 
-ggsave("figures/Fig1.jpeg", dpi = 300, width = 10, height = 7.5)
+ggsave("figures/Fig1.tiff", dpi = 300, width = 10, height = 7.5)
 

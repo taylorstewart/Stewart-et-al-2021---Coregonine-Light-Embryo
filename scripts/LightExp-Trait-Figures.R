@@ -152,7 +152,7 @@ plot.overall.all <- grid.arrange(
   heights = c(0.15, 1.0, 0.05, 1.0, 0.05, 0.04)
 )
 
-ggsave("figures/Fig3_2.jpeg", plot = plot.overall.all, width = 14, height = 11, dpi = 600)
+ggsave("figures/Fig3.tiff", plot = plot.overall.all, width = 14, height = 11, dpi = 300)
 
 
 #### VISUALIZATIONS - STANDARDIZED ---------------------------------------------------------------
@@ -286,5 +286,5 @@ plot.stand.all <- grid.arrange(
   heights = c(0.15, 1.0, 0.05, 1.0, 0.05, 0.04)
 )
 
-ggsave("figures/Fig4_2.jpeg", plot = plot.stand.all, width = 14, height = 11, dpi = 600)
+ggsave("figures/Fig4.tiff", plot = plot.stand.all, width = 14, height = 11, dpi = 300)
 
