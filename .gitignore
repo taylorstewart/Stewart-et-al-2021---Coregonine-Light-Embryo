@@ -38,17 +38,16 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
+
+# Ignore files
 .DS_Store
 data/.DS_Store
 data/HOBO/
 data/Datasheet_Scans
 data/Lake_Superior_Ice_Light/
 data/DEFI-L/
+data/SpawningLocations_Ice/
 LS-Bathy-Mark/
 figures/Annual_Ice_Spawning/
-
-# Ignore files too large to push
-data/PhenoVar_Bootstrap/
-.DS_Store
 manuscript/
 scripts/misc/
