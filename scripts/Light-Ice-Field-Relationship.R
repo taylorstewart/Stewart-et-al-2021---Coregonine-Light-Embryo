@@ -112,6 +112,7 @@ ggplot(ice.light.tidy, aes(x = timestamp, y = value, group = measurement)) +
         legend.key.width = unit(2.5, 'lines'), 
         legend.key.height = unit(1.5, 'lines'),
         legend.key = element_rect(fill = "transparent", color = "transparent"), 
+        legend.background = element_rect(fill = "transparent", color = "transparent"),
         plot.margin = unit(c(5, 20, 0, 20), "mm"))
 
 ggsave("figures/Fig2.tiff", dpi = 300, width = 14, height = 7.5)
