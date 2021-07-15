@@ -97,10 +97,11 @@ icelight.90 <- ice.light.day %>% filter(ice.conc > 90) %>%
 ## Plot time-series
 ## ===========================================================
 ggplot(ice.light.tidy, aes(x = timestamp, y = value, group = measurement)) +
-  geom_path(aes(colour = measurement), size = 1.5) +
+  geom_path(aes(colour = measurement, linetype = measurement), size = 1.5) +
   scale_x_datetime(date_labels = "%m/%Y", date_breaks = "1 month", expand = c(0,0)) +
   scale_y_continuous(limits = c(0, 100), breaks = seq(10, 100, 10), expand = c(0, 0)) +
   scale_color_manual(values = c("#0091e6", "gray50"), labels = c("Ice", "Light")) +
+  scale_linetype_manual(values = c("longdash", "solid"), labels = c("Ice", "Light")) +
   labs(y = expression(paste("Ice Coverage (%)\n\nLight Intensity (μmol ", m^-2, " ", s^-1, ")", sep="")), x = "") +
   theme_bw() +
   theme(axis.text = element_text(size = 25),
@@ -109,21 +110,10 @@ ggplot(ice.light.tidy, aes(x = timestamp, y = value, group = measurement)) +
         legend.position = c(0.093, 0.93), 
         legend.text = element_text(size = 20),
         legend.title = element_blank(), 
-        legend.key.width = unit(2.5, 'lines'), 
+        legend.key.width = unit(4.5, 'lines'), 
         legend.key.height = unit(1.5, 'lines'),
         legend.key = element_rect(fill = "transparent", color = "transparent"), 
         legend.background = element_rect(fill = "transparent", color = "transparent"),
         plot.margin = unit(c(5, 20, 0, 20), "mm"))
 
 ggsave("figures/Fig2.tiff", dpi = 300, width = 14, height = 7.5)
-
-
-ice.light.noTidy <- light.filt %>% group_by(ice.year, date) %>% 
-  summarize(light  = max(light)) %>% 
-  left_join(ice.full) %>% 
-  mutate(ice.conc = replace_na(ice.conc, 0))
-  
-
-ggplot(ice.light.noTidy, aes(x = ice.conc, y = light)) + 
-  geom_point() + 
-  geom_smooth(method = "lm", se = FALSE)
