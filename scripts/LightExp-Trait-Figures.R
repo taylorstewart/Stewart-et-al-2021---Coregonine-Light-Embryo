@@ -56,7 +56,7 @@ plot.dpf <- ggplot(filter(traitsOverall.all, trait == "dpf"), aes(x = population
   scale_shape_manual("combine", values = c(21, 22, 24), labels = c("Low ", "Medium ", "High")) +
   scale_color_manual("combine", values = c("#0571b0", "#92c5de", "#f4a582"),
                      labels = c("Low ", "Medium ", "High")) +
-  labs(y = "Mean DPF", x = "Population") +
+  labs(y = "Mean Days Post-fertilization", x = "Population") +
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
         axis.title.y = element_text(color = "Black", size = 22, margin = margin(0, 10, 0, 0)),
@@ -79,7 +79,7 @@ plot.add <- ggplot(filter(traitsOverall.all, trait == "ADD"), aes(x = population
   scale_shape_manual("combine", values = c(21, 22, 24), labels = c("Low ", "Medium ", "High")) +
   scale_color_manual("combine", values = c("#0571b0", "#92c5de", "#f4a582"),
                      labels = c("Low ", "Medium ", "High")) +
-  labs(y = "Mean ADD (°C)", x = "Population") +
+  labs(y = "Mean Accumulated\nDegree-days (°C)", x = "Population") +
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
         axis.title.y = element_text(color = "Black", size = 22, margin = margin(0, 10, 0, 0)),
@@ -90,7 +90,7 @@ plot.add <- ggplot(filter(traitsOverall.all, trait == "ADD"), aes(x = population
         legend.text = element_text(size = 20),
         legend.key.width = unit(1.25, 'cm'),
         legend.position = "top",
-        plot.margin = unit(c(5, 5, 5, 5), 'mm'))
+        plot.margin = unit(c(5, 1, 5, 1), 'mm'))
 
 ## Length-at-Hatch
 plot.tl <- ggplot(filter(traitsOverall.all, trait == "LAH"), aes(x = population, y = mean.trait, group = light, color = light, shape = light)) + 
@@ -102,7 +102,7 @@ plot.tl <- ggplot(filter(traitsOverall.all, trait == "LAH"), aes(x = population,
   scale_shape_manual("combine", values = c(21, 22, 24), labels = c("Low ", "Medium ", "High")) +
   scale_color_manual("combine", values = c("#0571b0", "#92c5de", "#f4a582"),
                      labels = c("Low ", "Medium ", "High")) +
-  labs(y = "Mean LAH (mm)", x = "Population") +
+  labs(y = "Mean Length-at-Hatch (mm)", x = "Population") +
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
         axis.title.y = element_text(color = "Black", size = 22, margin = margin(0, 10, 0, 0)),
@@ -125,7 +125,7 @@ plot.ysv <- ggplot(filter(traitsOverall.all, trait == "YSV"), aes(x = population
   scale_shape_manual("combine", values = c(21, 22, 24), labels = c("Low ", "Medium ", "High")) +
   scale_color_manual("combine", values = c("#0571b0", "#92c5de", "#f4a582"),
                      labels = c("Low ", "Medium ", "High")) +
-  labs(y = expression("Mean YSV (mm"^3*")"), x = "Population") +
+  labs(y = expression("Mean Yolk-sac Volume (mm"^3*")"), x = "Population") +
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
         axis.title.y = element_text(color = "Black", size = 22, margin = margin(0, 10, 0, 0)),
@@ -157,7 +157,7 @@ plot.overall.all <- grid.arrange(
   heights = c(0.15, 1.0, 0.05, 1.0, 0.05, 0.04)
 )
 
-ggsave("figures/Fig3.tiff", plot = plot.overall.all, width = 14, height = 11, dpi = 250)
+ggsave("figures/summaryForDefense.tiff", plot = plot.overall.all, width = 14, height = 11, dpi = 250)
 
 
 #### VISUALIZATIONS - STANDARDIZED ---------------------------------------------------------------
@@ -195,7 +195,7 @@ plot.dpf.stand <- ggplot(filter(traitsStand.all, trait == "dpf"), aes(x = popula
   scale_shape_manual("combine", values = c(21, 22, 24), labels = c("Low ", "Medium ", "High")) +
   scale_color_manual("combine", values = c("#0571b0", "#92c5de", "#f4a582"),
                      labels = c("Low ", "Medium ", "High")) +
-  labs(y = "Standardized DPF (%)", x = "Population") +
+  labs(y = "Standardized Days\nPost-fertilization (%)", x = "Population") +
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
         axis.title.y = element_text(color = "Black", size = 22, margin = margin(0, 10, 0, 0)),
@@ -206,7 +206,7 @@ plot.dpf.stand <- ggplot(filter(traitsStand.all, trait == "dpf"), aes(x = popula
         legend.text = element_text(size = 20),
         legend.key.size = unit(1.25, 'cm'),
         legend.position = "top",
-        plot.margin = unit(c(5, 5, 5, 5), 'mm')) 
+        plot.margin = unit(c(5, 1, 5, 1), 'mm')) 
 
 ## Plot Standardized ADD
 plot.add.stand <- ggplot(filter(traitsStand.all, trait == "ADD"), aes(x = population, y = mean.trait.stand, group = light, color = light, shape = light)) + 
@@ -218,7 +218,7 @@ plot.add.stand <- ggplot(filter(traitsStand.all, trait == "ADD"), aes(x = popula
   scale_shape_manual("combine", values = c(21, 22, 24), labels = c("Low ", "Medium ", "High")) +
   scale_color_manual("combine", values = c("#0571b0", "#92c5de", "#f4a582"),
                      labels = c("Low ", "Medium ", "High")) +
-  labs(y = "Standardized ADD (%)", x = "Population") +
+  labs(y = "Standardized Accumulated\nDegree-days (%)", x = "Population") +
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
         axis.title.y = element_text(color = "Black", size = 22, margin = margin(0, 10, 0, 0)),
@@ -229,7 +229,7 @@ plot.add.stand <- ggplot(filter(traitsStand.all, trait == "ADD"), aes(x = popula
         legend.text = element_text(size = 20),
         legend.key.size = unit(1.25, 'cm'),
         legend.position = "top",
-        plot.margin = unit(c(5, 5, 5, 5), 'mm')) 
+        plot.margin = unit(c(5, 1, 5, 1), 'mm')) 
 
 ## Plot Standardized LAH
 plot.tl.stand <- ggplot(filter(traitsStand.all, trait == "LAH"), aes(x = population, y = mean.trait.stand, group = light, color = light, shape = light)) + 
@@ -241,7 +241,7 @@ plot.tl.stand <- ggplot(filter(traitsStand.all, trait == "LAH"), aes(x = populat
   scale_shape_manual("combine", values = c(21, 22, 24), labels = c("Low ", "Medium ", "High")) +
   scale_color_manual("combine", values = c("#0571b0", "#92c5de", "#f4a582"),
                      labels = c("Low ", "Medium ", "High")) +
-  labs(y = "Standardized LAH (%)", x = "Population") +
+  labs(y = "Standardized\nLength-at-Hatch (%)", x = "Population") +
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
         axis.title.y = element_text(color = "Black", size = 22, margin = margin(0, 10, 0, 0)),
@@ -252,7 +252,7 @@ plot.tl.stand <- ggplot(filter(traitsStand.all, trait == "LAH"), aes(x = populat
         legend.text = element_text(size = 20),
         legend.key.size = unit(1.25, 'cm'),
         legend.position = "top",
-        plot.margin = unit(c(5, 5, 5, 5), 'mm')) 
+        plot.margin = unit(c(5, 1, 5, 1), 'mm')) 
 
 ## Plot Standardized YSV
 plot.ysv.stand <- ggplot(filter(traitsStand.all, trait == "YSV"), aes(x = population, y = mean.trait.stand, group = light, color = light, shape = light)) + 
@@ -264,7 +264,7 @@ plot.ysv.stand <- ggplot(filter(traitsStand.all, trait == "YSV"), aes(x = popula
   scale_shape_manual("combine", values = c(21, 22, 24), labels = c("Low ", "Medium ", "High")) +
   scale_color_manual("combine", values = c("#0571b0", "#92c5de", "#f4a582"),
                      labels = c("Low ", "Medium ", "High")) +
-  labs(y = "Standardized YSV (%)", x = "Population") +
+  labs(y = "Standardized Yolk-sac\nVolumne (%)", x = "Population") +
   theme_bw() +
   theme(axis.title.x = element_text(color = "Black", size = 22, margin = margin(10, 0, 0, 0)),
         axis.title.y = element_text(color = "Black", size = 22, margin = margin(0, 10, 0, 0)),
@@ -275,7 +275,7 @@ plot.ysv.stand <- ggplot(filter(traitsStand.all, trait == "YSV"), aes(x = popula
         legend.text = element_text(size = 20),
         legend.key.size = unit(1.25, 'cm'),
         legend.position = "top",
-        plot.margin = unit(c(5, 5, 5, 5), 'mm')) 
+        plot.margin = unit(c(5, 1, 5, 1), 'mm')) 
 
 ## Combine all figures
 plot.stand.all <- grid.arrange(
@@ -296,5 +296,5 @@ plot.stand.all <- grid.arrange(
   heights = c(0.15, 1.0, 0.05, 1.0, 0.05, 0.04)
 )
 
-ggsave("figures/Fig4.tiff", plot = plot.stand.all, width = 14, height = 11, dpi = 250)
+ggsave("figures/summaryForDefense-Stand.tiff", plot = plot.stand.all, width = 14, height = 11, dpi = 250)
 
